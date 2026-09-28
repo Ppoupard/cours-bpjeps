@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BPJEPS MAPST — Carnet &amp; devoirs</title>
+<meta name="description" content="Carnet de notes par bloc et par cours, et suivi des devoirs à rendre, pour le BPJEPS MAPST.">
+<meta name="theme-color" content="#2451d8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Carnet BPJEPS">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+/* ===== BPJEPS MAPST — Carnet & devoirs : feuille de style (même identité que la plateforme) ===== */
+:root {
+  --bg: #f4f6fb; --surface: #ffffff; --surface-2: #f8f9fd; --text: #171a26; --muted: #5d6478; --border: #e3e6ef;
+  --primary: #2451d8; --primary-soft: #e8edfd; --primary-ink: #1b3fb0; --accent: #f59e0b; --success: #16a34a; --success-soft: #e6f7ec;
+  --danger: #dc2626; --danger-soft: #fdecec; --warn: #d97706; --warn-soft: #fff4e0; --info-soft: #e8f1fd; --mark: #fff59d;
+  --shadow: 0 1px 2px rgba(20,24,40,.05), 0 6px 20px -8px rgba(20,24,40,.12);
+  --radius: 14px; --radius-sm: 9px; --sidebar-w: 260px; --font: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif; --fs: 16px;
+}
+:root[data-theme="dark"] {
+  --bg: #0f1220; --surface: #171b2c; --surface-2: #1d2235; --text: #e9ebf5; --muted: #a0a7bd; --border: #2a3047;
+  --primary: #6d8cff; --primary-soft: #23305a; --primary-ink: #c3d0ff; --accent: #fbbf24; --success: #34d399; --success-soft: #123326;
+  --danger: #f87171; --danger-soft: #3b1a1a; --warn: #fbbf24; --warn-soft: #3a2a10; --info-soft: #1b2a45; --mark: #7a6a1a;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -10px rgba(0,0,0,.6);
+}
+* { box-sizing: border-box; }
+html { font-size: var(--fs); }
+body { margin: 0; font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { font: inherit; cursor: pointer; }
+input, select, textarea { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
+
+/* ---- Layout ---- */
+.app { display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: 100vh; }
+.sidebar { background: var(--surface); border-right: 1px solid var(--border); position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; z-index: 30; }
+.brand { display: flex; align-items: center; gap: 10px; padding: 18px 18px 12px; }
+.brand-logo { width: 38px; height: 38px; border-radius: 11px; background: linear-gradient(135deg, #2451d8, #7c3aed); display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 13px; letter-spacing: .3px; flex-shrink: 0; }
+.brand-title { font-weight: 800; font-size: 15px; line-height: 1.15; }
+.brand-sub { font-size: 12px; color: var(--muted); }
+.nav { padding: 6px 10px; display: flex; flex-direction: column; gap: 2px; }
+.nav-section { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); padding: 12px 10px 4px; font-weight: 700; }
+.nav a { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 9px; color: var(--text); font-weight: 500; font-size: 14.5px; }
+.nav a:hover { background: var(--surface-2); text-decoration: none; }
+.nav a.active { background: var(--primary-soft); color: var(--primary-ink); font-weight: 700; }
+.nav a .ic { width: 22px; text-align: center; flex-shrink: 0; font-size: 15px; }
+.nav a .mc-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin: 0 6px; }
+.nav .badge { margin-left: auto; }
+.nav a.sub { padding: 6px 10px 6px 12px; font-size: 13.5px; }
+.sidebar-foot { margin-top: auto; padding: 12px 16px 16px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); }
+.main { min-width: 0; display: flex; flex-direction: column; }
+.topbar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 10px; padding: 10px 22px; background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+.topbar .search { flex: 1; max-width: 560px; position: relative; }
+.topbar .search input { width: 100%; padding: 9px 12px 9px 36px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); outline: none; }
+.topbar .search input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+.topbar .search .sic { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; }
+.topbar .spacer { flex: 1; }
+.icon-btn { border: 1px solid var(--border); background: var(--surface); border-radius: 10px; width: 38px; height: 38px; display: grid; place-items: center; color: var(--text); font-size: 16px; }
+.icon-btn:hover { background: var(--surface-2); }
+.menu-btn { display: none; }
+.content { padding: 22px 26px 60px; max-width: 1180px; width: 100%; margin: 0 auto; }
+.content.narrow { max-width: 900px; }
+
+/* ---- Composants ---- */
+h1.page-title { font-size: 26px; margin: 4px 0 6px; letter-spacing: -.3px; }
+.page-sub { color: var(--muted); margin: 0 0 20px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); }
+.card + .card { margin-top: 14px; }
+.card h2 { margin: 0 0 10px; font-size: 18px; }
+.card h3 { margin: 14px 0 6px; font-size: 15px; }
+.grid { display: grid; gap: 14px; }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.between { justify-content: space-between; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.tiny { font-size: 12px; }
+.bold { font-weight: 700; }
+.mt { margin-top: 14px; } .mt-lg { margin-top: 26px; } .mb { margin-bottom: 14px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 16px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-weight: 600; font-size: 14px; transition: .15s; white-space: nowrap; }
+.btn:hover { background: var(--surface-2); text-decoration: none; }
+.btn-primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-ink); border-color: var(--primary-ink); }
+.btn-success { background: var(--success); border-color: var(--success); color: #fff; }
+.btn-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+.btn-ghost { background: transparent; border-color: transparent; }
+.btn-sm { padding: 6px 11px; font-size: 13px; border-radius: 8px; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); white-space: nowrap; }
+.badge-primary { background: var(--primary-soft); color: var(--primary-ink); border-color: transparent; }
+.badge-success { background: var(--success-soft); color: var(--success); border-color: transparent; }
+.badge-warn { background: var(--warn-soft); color: var(--warn); border-color: transparent; }
+.badge-danger { background: var(--danger-soft); color: var(--danger); border-color: transparent; }
+.pill-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.pill-tabs button { padding: 7px 13px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); font-weight: 600; font-size: 13.5px; color: var(--text); }
+.pill-tabs button.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+select.select, input.input, textarea.input { padding: 9px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); width: 100%; }
+select.select:focus, input.input:focus, textarea.input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+textarea.input { min-height: 90px; resize: vertical; line-height: 1.5; }
+label.lbl { display: block; font-size: 13px; font-weight: 700; color: var(--muted); margin: 8px 0 4px; }
+.kbd { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; padding: 1px 6px; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 6px; background: var(--surface-2); }
+.toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 11px 18px; border-radius: 12px; font-weight: 600; font-size: 14px; box-shadow: var(--shadow); z-index: 100; animation: pop .2s ease-out; max-width: 90vw; }
+@keyframes pop { from { opacity: 0; transform: translate(-50%, 8px);} to { opacity: 1; transform: translate(-50%, 0);} }
+.modal-bg { position: fixed; inset: 0; background: rgba(10,12,25,.55); z-index: 90; display: grid; place-items: center; padding: 16px; }
+.modal { background: var(--surface); border-radius: 16px; padding: 22px; width: min(640px, 100%); max-height: 90vh; overflow: auto; box-shadow: var(--shadow); }
+.modal h2 { margin: 0 0 12px; }
+.empty { text-align: center; color: var(--muted); padding: 30px 10px; }
+.stat { display: flex; flex-direction: column; gap: 2px; }
+.stat .v { font-size: 26px; font-weight: 800; letter-spacing: -.5px; line-height: 1.1; }
+.stat .l { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+.divider { height: 1px; background: var(--border); margin: 14px 0; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--border); font-size: 12.5px; font-weight: 600; color: var(--text); }
+.chip:hover { text-decoration: none; border-color: var(--primary); }
+.chip .dot { width: 9px; height: 9px; border-radius: 50%; }
+.crumbs { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
+.crumbs a { color: var(--muted); }
+
+/* ---- Accueil ---- */
+.hero { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 22px 24px; border-radius: 18px; background: linear-gradient(120deg, #2451d8 0%, #4f46e5 55%, #7c3aed 100%); color: #fff; box-shadow: var(--shadow); }
+.hero h1 { margin: 0 0 4px; font-size: 24px; }
+.hero p { margin: 0; opacity: .92; }
+.hero .btn { background: #fff; color: #1b3fb0; border-color: #fff; }
+.hero .btn:hover { background: #eef1ff; }
+.hero .btn-ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,.5); }
+.hero .btn-ghost:hover { background: rgba(255,255,255,.12); }
+.module-card { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: var(--radius); background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); color: var(--text); transition: transform .15s; position: relative; overflow: hidden; }
+.module-card:hover { transform: translateY(-2px); text-decoration: none; }
+.module-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--mc, var(--primary)); }
+.module-card .mc-head { display: flex; align-items: center; gap: 10px; }
+.module-card .mc-icon { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; font-size: 21px; background: color-mix(in srgb, var(--mc) 14%, var(--surface)); flex-shrink: 0; }
+.module-card .mc-code { font-size: 11px; font-weight: 800; letter-spacing: .6px; color: var(--mc); text-transform: uppercase; }
+.module-card .mc-title { font-weight: 700; font-size: 14.5px; line-height: 1.25; }
+.module-card .mc-sub { font-size: 12.5px; color: var(--muted); }
+.module-head { display: flex; gap: 16px; align-items: center; padding: 18px 22px; border-radius: 18px; background: var(--surface); border: 1px solid var(--border); border-left: 6px solid var(--mc); box-shadow: var(--shadow); }
+.module-head .big-icon { width: 56px; height: 56px; border-radius: 16px; display: grid; place-items: center; font-size: 28px; background: color-mix(in srgb, var(--mc) 14%, var(--surface)); flex-shrink: 0; }
+.module-head h1 { margin: 0; font-size: 22px; }
+.chapter { margin-top: 16px; }
+.chapter-title { display: flex; align-items: center; gap: 10px; font-size: 15px; margin: 0 0 6px; }
+.chapter-title .num { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: color-mix(in srgb, var(--mc) 14%, var(--surface)); color: var(--mc); font-size: 13px; font-weight: 800; }
+.lesson-list { display: flex; flex-direction: column; gap: 4px; }
+.lesson-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px; background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+.lesson-row:hover { border-color: var(--mc); text-decoration: none; }
+.lesson-row .lt { flex: 1; font-size: 14px; }
+.lesson-row .meta { display: flex; gap: 8px; align-items: center; }
+.lesson-row.has-notes { border-left: 3px solid var(--mc); }
+
+/* ---- Notes ---- */
+.note-list { display: flex; flex-direction: column; gap: 8px; }
+.note-row { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+.note-row:hover { text-decoration: none; border-color: var(--primary); }
+.note-row .ic { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-size: 18px; background: color-mix(in srgb, var(--mc, var(--primary)) 14%, var(--surface)); flex-shrink: 0; }
+.note-row .t { font-weight: 700; font-size: 14.5px; }
+.note-row .s { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.note-row .x { font-size: 13px; color: var(--muted); margin-top: 4px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.note-row .fav { margin-left: auto; color: var(--accent); font-size: 16px; }
+.editor-head { display: flex; flex-direction: column; gap: 8px; }
+.editor-title { font-size: 24px; font-weight: 800; border: none; background: transparent; width: 100%; padding: 6px 0; border-bottom: 2px solid transparent; letter-spacing: -.3px; }
+.editor-title:focus { outline: none; border-bottom-color: var(--primary); }
+.editor-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; font-size: 13px; color: var(--muted); }
+.editor-meta .wrap { display: inline-flex; max-width: 100%; min-width: 0; }
+.editor-meta .wrap select { max-width: 100%; }
+.editor-meta select, .editor-meta input { padding: 5px 9px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-size: 13px; width: auto; max-width: min(100%, 340px); text-overflow: ellipsis; }
+.toolbar { position: sticky; top: 58px; z-index: 10; display: flex; gap: 4px; flex-wrap: wrap; padding: 6px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow); margin: 12px 0 10px; }
+.toolbar button { border: 1px solid transparent; background: transparent; border-radius: 8px; min-width: 34px; height: 34px; padding: 0 8px; font-size: 14px; font-weight: 700; color: var(--text); }
+.toolbar button:hover { background: var(--surface-2); border-color: var(--border); }
+.toolbar button.on { background: var(--primary-soft); color: var(--primary-ink); }
+.toolbar .sep { width: 1px; background: var(--border); margin: 4px 3px; }
+.toolbar .status { margin-left: auto; align-self: center; font-size: 12px; color: var(--muted); padding-right: 8px; }
+.editor { min-height: 55vh; padding: 18px 22px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); font-size: 16px; line-height: 1.6; outline: none; }
+.editor:focus { border-color: var(--primary); }
+.editor:empty::before { content: attr(data-placeholder); color: var(--muted); pointer-events: none; }
+.editor h2 { font-size: 20px; margin: 18px 0 6px; } .editor h3 { font-size: 17px; margin: 14px 0 4px; }
+.editor p, .editor div { margin: 0 0 4px; }
+.editor ul, .editor ol { margin: 4px 0 8px; padding-left: 26px; }
+.editor mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 2px; }
+.editor blockquote { margin: 8px 0; padding: 6px 14px; border-left: 4px solid var(--primary); background: var(--surface-2); border-radius: 0 8px 8px 0; color: var(--muted); }
+.editor input[type=checkbox] { width: 17px; height: 17px; vertical-align: -3px; margin: 0 6px 0 0; accent-color: var(--primary); cursor: pointer; }
+.editor a { text-decoration: underline; }
+.editor code { font-family: ui-monospace, Menlo, monospace; font-size: 14px; background: var(--surface-2); padding: 1px 5px; border-radius: 5px; }
+.editor hr { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+.editor-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 999px; background: var(--info-soft); color: var(--primary-ink); font-size: 12px; font-weight: 700; }
+.tag:hover { text-decoration: none; filter: brightness(.95); }
+
+/* ---- Devoirs ---- */
+.dev-list { display: flex; flex-direction: column; gap: 8px; }
+.dev-group { margin-top: 18px; }
+.dev-group h3 { margin: 0 0 8px; font-size: 14px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.dev { display: flex; align-items: flex-start; gap: 12px; padding: 11px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--mc, var(--border)); }
+.dev.done { opacity: .6; }
+.dev.done .t { text-decoration: line-through; }
+.dev input[type=checkbox] { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--success); cursor: pointer; flex-shrink: 0; }
+.dev .body { flex: 1; min-width: 0; cursor: pointer; }
+.dev .t { font-weight: 700; font-size: 14.5px; }
+.dev .s { font-size: 12.5px; color: var(--muted); margin-top: 2px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.dev .d { font-size: 13px; color: var(--text); margin-top: 4px; white-space: pre-wrap; }
+.dev .due { font-weight: 700; }
+.dev .due.late { color: var(--danger); } .dev .due.today { color: var(--warn); } .dev .due.soon { color: var(--primary-ink); }
+.prio { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.prio.haute { background: var(--danger); } .prio.normale { background: var(--primary); } .prio.basse { background: var(--muted); }
+.quick-add { display: flex; gap: 8px; flex-wrap: wrap; }
+.quick-add input.input { flex: 1; min-width: 200px; }
+.quick-add input[type=date] { width: auto; }
+.week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+.day { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 8px; min-height: 140px; }
+.day.today { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+.day h4 { margin: 0 0 6px; font-size: 12.5px; color: var(--muted); display: flex; justify-content: space-between; }
+.day h4 b { color: var(--text); font-size: 15px; }
+.day .mini { display: block; padding: 6px 8px; border-radius: 8px; background: var(--surface-2); border-left: 3px solid var(--mc, var(--primary)); font-size: 12.5px; font-weight: 600; margin-bottom: 5px; color: var(--text); cursor: pointer; }
+.day .mini.done { opacity: .5; text-decoration: line-through; }
+.day .mini:hover { text-decoration: none; background: var(--primary-soft); }
+
+/* ---- Recherche / résultats ---- */
+.snip { font-size: 13px; color: var(--muted); } .snip mark { background: var(--mark); color: inherit; }
+.result-list { display: flex; flex-direction: column; gap: 8px; }
+
+/* ---- Réglages ---- */
+.sync-code { font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; word-break: break-all; min-height: 120px; }
+
+/* ---- Responsive ---- */
+@media (max-width: 960px) { .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); } .week { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 760px) {
+  .app { grid-template-columns: 1fr; }
+  .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 280px; transform: translateX(-100%); transition: transform .25s; height: 100vh; box-shadow: 0 0 40px rgba(0,0,0,.25); }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar-bg { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 29; }
+  .menu-btn { display: grid; }
+  .content { padding: 14px 14px 90px; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .week { grid-template-columns: 1fr; } .day { min-height: 0; }
+  .hero { flex-direction: column; align-items: flex-start; }
+  h1.page-title { font-size: 22px; }
+  .topbar { padding: 8px 12px; } .topbar .spacer { display: none; }
+  .toolbar { top: 54px; }
+  .editor { padding: 14px; min-height: 50vh; }
+  .editor-title { font-size: 20px; }
+  .card { padding: 14px; }
+}
+@media print {
+  .sidebar, .topbar, .toolbar, .editor-actions, .no-print, .editor-meta select { display: none !important; }
+  .app { display: block; } .content { padding: 0; max-width: none; }
+  body { background: #fff; color: #000; } .editor, .card { box-shadow: none; border: none; }
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><div class="brand-logo">BP</div><div><div class="brand-title">Carnet BPJEPS</div><div class="brand-sub">Notes de cours · devoirs</div></div></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="sidebar-foot">Fait pour Pablo · <span id="version"></span><br>Compagnon de la plateforme « Mon prof »</div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn menu-btn" id="menu-btn" aria-label="Menu">☰</button>
+      <div class="search"><span class="sic">🔍</span><input id="search-input" type="search" placeholder="Rechercher dans mes notes et mes devoirs…" aria-label="Rechercher"></div>
+      <div class="spacer"></div>
+      <a class="btn btn-primary btn-sm" id="new-note-btn" href="#/note/new/libre" title="Nouvelle note">＋ Note</a>
+      <a class="btn btn-sm" id="new-dev-btn" href="#/devoirs/nouveau" title="Nouveau devoir">＋ Devoir</a>
+      <button class="icon-btn" id="theme-btn" aria-label="Changer de thème" title="Thème clair / sombre">◐</button>
+    </header>
+    <main id="main"></main>
+  </div>
+</div>
+<script>window.CARNET_VERSION = "2026.09.28-0626";</script>
+<script>
+window.CARNET_STRUCTURE = [{"id":"intro","code":"DÉPART","titre":"Ton diplôme et ta méthode","sousTitre":"Comprendre le BPJEPS MAPST, réussir son alternance, apprendre efficacement","couleur":"#0ea5e9","icone":"🎯","chapitres":[{"id":"intro-1","num":1,"titre":"Comprendre le BPJEPS MAPST","lecons":[{"id":"intro-1-1","num":1,"titre":"La réforme et le diplôme"},{"id":"intro-1-2","num":2,"titre":"Les trois blocs de compétences"},{"id":"intro-1-3","num":3,"titre":"Les trois domaines d'activités"},{"id":"intro-1-4","num":4,"titre":"Les épreuves de certification en détail"},{"id":"intro-1-5","num":5,"titre":"EPMSP, TEP, prérequis et calendrier type d'une année"},{"id":"intro-1-6","num":6,"titre":"Et après ? Poursuites d'études, emplois et secteurs"}]},{"id":"intro-2","num":2,"titre":"Réussir ton année en alternance","lecons":[{"id":"intro-2-1","num":1,"titre":"Tuteur, structure et organisme : qui fait quoi"},{"id":"intro-2-2","num":2,"titre":"Organiser sa semaine 2 jours / 3 jours"},{"id":"intro-2-3","num":3,"titre":"Capitaliser ses expériences de terrain"},{"id":"intro-2-4","num":4,"titre":"Travailler avec l'équipe et les bénévoles"}]},{"id":"intro-3","num":3,"titre":"Apprendre efficacement","lecons":[{"id":"intro-3-1","num":1,"titre":"Mémoriser durablement"},{"id":"intro-3-2","num":2,"titre":"Réussir un oral"}]}]},{"id":"bc1","code":"BC1","titre":"Concevoir et mettre en œuvre des projets d'animation","sousTitre":"Du diagnostic de territoire au bilan du projet, dans le cadre de ta structure","couleur":"#2563eb","icone":"📋","chapitres":[{"id":"bc1-1","num":1,"titre":"Le territoire et la structure","lecons":[{"id":"bc1-1-1","num":1,"titre":"Le diagnostic de territoire"},{"id":"bc1-1-2","num":2,"titre":"Les acteurs locaux du sport et de l'animation"},{"id":"bc1-1-3","num":3,"titre":"Connaître sa structure : statuts et fonctionnement"},{"id":"bc1-1-4","num":4,"titre":"Le projet de la structure"},{"id":"bc1-1-5","num":5,"titre":"Financements et partenaires"}]},{"id":"bc1-2","num":2,"titre":"Les publics","lecons":[{"id":"bc1-2-1","num":1,"titre":"Les enfants de 3 à 12 ans"},{"id":"bc1-2-2","num":2,"titre":"Les adolescents"},{"id":"bc1-2-3","num":3,"titre":"Adultes et seniors"},{"id":"bc1-2-4","num":4,"titre":"Personnes en situation de handicap et publics éloignés de la pratique"},{"id":"bc1-2-5","num":5,"titre":"Analyser les besoins et les attentes d'un public"}]},{"id":"bc1-3","num":3,"titre":"Concevoir un projet d'animation","lecons":[{"id":"bc1-3-1","num":1,"titre":"Qu'est-ce qu'un projet ? La démarche de projet"},{"id":"bc1-3-2","num":2,"titre":"Le diagnostic préalable : QQOQCP et SWOT"},{"id":"bc1-3-3","num":3,"titre":"Formuler des objectifs"},{"id":"bc1-3-4","num":4,"titre":"Les moyens : humains, matériels, financiers"},{"id":"bc1-3-5","num":5,"titre":"Planifier : rétroplanning, Gantt, jalons"},{"id":"bc1-3-6","num":6,"titre":"Écoresponsabilité et développement durable"}]},{"id":"bc1-4","num":4,"titre":"Mettre en œuvre et suivre","lecons":[{"id":"bc1-4-1","num":1,"titre":"Organiser l'équipe et coordonner"},{"id":"bc1-4-2","num":2,"titre":"Obligations administratives et sécurité du projet"},{"id":"bc1-4-3","num":3,"titre":"Outils numériques de gestion et de suivi"},{"id":"bc1-4-4","num":4,"titre":"Gérer les imprévus et réguler"}]},{"id":"bc1-5","num":5,"titre":"Évaluer et restituer","lecons":[{"id":"bc1-5-1","num":1,"titre":"Indicateurs et outils d'évaluation"},{"id":"bc1-5-2","num":2,"titre":"Analyser le projet : réussites, écarts, facteurs"},{"id":"bc1-5-3","num":3,"titre":"Restituer et faire évoluer"}]},{"id":"bc1-6","num":6,"titre":"Réussir l'épreuve BC1","lecons":[{"id":"bc1-6-1","num":1,"titre":"Le dossier écrit : plan type et attentes"},{"id":"bc1-6-2","num":2,"titre":"La soutenance et l'entretien"}]}]},{"id":"bc2","code":"BC2","titre":"Valoriser les activités et les projets de la structure","sousTitre":"Communiquer pour mobiliser les publics et faire rayonner le club","couleur":"#db2777","icone":"📣","chapitres":[{"id":"bc2-1","num":1,"titre":"Les bases de la communication","lecons":[{"id":"bc2-1-1","num":1,"titre":"Communiquer, c'est quoi ?"},{"id":"bc2-1-2","num":2,"titre":"Objectifs et cibles"},{"id":"bc2-1-3","num":3,"titre":"Le message et le ton"},{"id":"bc2-1-4","num":4,"titre":"Construire un plan de communication"}]},{"id":"bc2-2","num":2,"titre":"Les outils","lecons":[{"id":"bc2-2-1","num":1,"titre":"Affiche, flyer et supports imprimés"},{"id":"bc2-2-2","num":2,"titre":"Les réseaux sociaux"},{"id":"bc2-2-3","num":3,"titre":"Site web, newsletter, e-mail et messagerie"},{"id":"bc2-2-4","num":4,"titre":"Presse locale et relations publiques"},{"id":"bc2-2-5","num":5,"titre":"Photo et vidéo"}]},{"id":"bc2-3","num":3,"titre":"Rédiger pour être lu","lecons":[{"id":"bc2-3-1","num":1,"titre":"Écrire clair et efficace"},{"id":"bc2-3-2","num":2,"titre":"Raconter un projet : storytelling"},{"id":"bc2-3-3","num":3,"titre":"Accessibilité et inclusion"}]},{"id":"bc2-4","num":4,"titre":"Cadre légal et éthique","lecons":[{"id":"bc2-4-1","num":1,"titre":"Droit à l'image et mineurs"},{"id":"bc2-4-2","num":2,"titre":"RGPD et données des adhérents"},{"id":"bc2-4-3","num":3,"titre":"Propriété intellectuelle, musiques, logos et mentions obligatoires"}]},{"id":"bc2-5","num":5,"titre":"Valoriser un projet ou une activité","lecons":[{"id":"bc2-5-1","num":1,"titre":"Valoriser avant, pendant, après"},{"id":"bc2-5-2","num":2,"titre":"Valoriser auprès des partenaires et financeurs"},{"id":"bc2-5-3","num":3,"titre":"Mesurer les retombées"}]},{"id":"bc2-6","num":6,"titre":"Réussir l'épreuve BC2","lecons":[{"id":"bc2-6-1","num":1,"titre":"Choisir et construire ses deux actions de valorisation"},{"id":"bc2-6-2","num":2,"titre":"La présentation et l'entretien"}]}]},{"id":"bc3","code":"BC3","titre":"Concevoir, animer en sécurité et évaluer des séances et des cycles","sousTitre":"Pédagogie, conception, animation, sécurité, évaluation — le cœur du métier d'éducateur","couleur":"#16a34a","icone":"🏃","chapitres":[{"id":"bc3-1","num":1,"titre":"Les fondamentaux","lecons":[{"id":"bc3-1-1","num":1,"titre":"Découverte, initiation, apprentissage"},{"id":"bc3-1-2","num":2,"titre":"Séance, situation, cycle : le vocabulaire du métier"},{"id":"bc3-1-3","num":3,"titre":"Analyser une activité : logique interne et ressources sollicitées"},{"id":"bc3-1-4","num":4,"titre":"Les objectifs : domaines moteur, cognitif, socio-affectif"}]},{"id":"bc3-2","num":2,"titre":"Concevoir un cycle","lecons":[{"id":"bc3-2-1","num":1,"titre":"Finalités et évaluation diagnostique"},{"id":"bc3-2-2","num":2,"titre":"Construire une progression sur 6 séances"},{"id":"bc3-2-3","num":3,"titre":"Le document « cycle » attendu à l'examen"},{"id":"bc3-2-4","num":4,"titre":"Exemple de cycle commenté : badminton découverte, adultes débutants"}]},{"id":"bc3-3","num":3,"titre":"Concevoir une séance","lecons":[{"id":"bc3-3-1","num":1,"titre":"Structure et gestion du temps"},{"id":"bc3-3-2","num":2,"titre":"La fiche de séance : rubriques et exemple"},{"id":"bc3-3-3","num":3,"titre":"Les variables didactiques"},{"id":"bc3-3-4","num":4,"titre":"Différencier et inclure"}]},{"id":"bc3-4","num":4,"titre":"Animer","lecons":[{"id":"bc3-4-1","num":1,"titre":"Consignes et communication"},{"id":"bc3-4-2","num":2,"titre":"Les styles d'intervention"},{"id":"bc3-4-3","num":3,"titre":"Feedback et régulation en direct"},{"id":"bc3-4-4","num":4,"titre":"Gestion du groupe et motivation"},{"id":"bc3-4-5","num":5,"titre":"Accueillir et clôturer"}]},{"id":"bc3-5","num":5,"titre":"La sécurité","lecons":[{"id":"bc3-5-1","num":1,"titre":"Analyse de risques a priori"},{"id":"bc3-5-2","num":2,"titre":"Sécurité passive et sécurité active"},{"id":"bc3-5-3","num":3,"titre":"Effectif, espace, matériel : dimensionner sa séance"},{"id":"bc3-5-4","num":4,"titre":"L'état des pratiquants et l'adaptation"},{"id":"bc3-5-5","num":5,"titre":"Conduite à tenir en cas d'incident"}]},{"id":"bc3-6","num":6,"titre":"Évaluer","lecons":[{"id":"bc3-6-1","num":1,"titre":"Évaluer les pratiquants"},{"id":"bc3-6-2","num":2,"titre":"Évaluer sa séance et son cycle"},{"id":"bc3-6-3","num":3,"titre":"S'auto-analyser après une séance"}]},{"id":"bc3-7","num":7,"titre":"Réussir l'épreuve BC3","lecons":[{"id":"bc3-7-1","num":1,"titre":"Les EPMSP : la séquence de 30 min et l'entretien sécurité"},{"id":"bc3-7-2","num":2,"titre":"Épreuve 1 : séance de 30 min + entretien"},{"id":"bc3-7-3","num":3,"titre":"Épreuve 2 : deux nouvelles activités"}]}]},{"id":"apec","code":"APEC","titre":"Entretien corporel, anatomie et physiologie","sousTitre":"Domaine 1 — connaître le corps pour encadrer fitness, renforcement, cardio et souplesse en sécurité","couleur":"#ea580c","icone":"💪","chapitres":[{"id":"apec-1","num":1,"titre":"Anatomie fonctionnelle","lecons":[{"id":"apec-1-1","num":1,"titre":"Le squelette et les articulations"},{"id":"apec-1-2","num":2,"titre":"Les muscles principaux et leurs fonctions"},{"id":"apec-1-3","num":3,"titre":"Le dos, la posture et le gainage"},{"id":"apec-1-4","num":4,"titre":"La contraction musculaire"}]},{"id":"apec-2","num":2,"titre":"Physiologie de l'effort","lecons":[{"id":"apec-2-1","num":1,"titre":"Les filières énergétiques"},{"id":"apec-2-2","num":2,"titre":"Le cœur et la fréquence cardiaque"},{"id":"apec-2-3","num":3,"titre":"Respiration, VO2max, VMA"},{"id":"apec-2-4","num":4,"titre":"Les adaptations à l'entraînement"},{"id":"apec-2-5","num":5,"titre":"Fatigue, récupération, sommeil, surentraînement"},{"id":"apec-2-6","num":6,"titre":"Hydratation et nutrition de base"}]},{"id":"apec-3","num":3,"titre":"Renforcement musculaire","lecons":[{"id":"apec-3-1","num":1,"titre":"Principes et méthodes du renforcement"},{"id":"apec-3-2","num":2,"titre":"Les exercices fondamentaux et leurs variantes"},{"id":"apec-3-3","num":3,"titre":"Sécurité posturale et respiration"},{"id":"apec-3-4","num":4,"titre":"Construire une séance de renforcement"}]},{"id":"apec-4","num":4,"titre":"Cardio et cours collectifs","lecons":[{"id":"apec-4-1","num":1,"titre":"Intensité et gestion de l'effort"},{"id":"apec-4-2","num":2,"titre":"Circuit training et HIIT"},{"id":"apec-4-3","num":3,"titre":"Step, LIA et chorégraphie"},{"id":"apec-4-4","num":4,"titre":"Marche active, cardio doux et sport-santé"}]},{"id":"apec-5","num":5,"titre":"Souplesse, mobilité, relaxation","lecons":[{"id":"apec-5-1","num":1,"titre":"Les étirements : types et règles"},{"id":"apec-5-2","num":2,"titre":"Mobilité articulaire et échauffement"},{"id":"apec-5-3","num":3,"titre":"Pilates et yoga d'initiation"},{"id":"apec-5-4","num":4,"titre":"Respiration, relaxation et retour au calme"}]},{"id":"apec-6","num":6,"titre":"Publics et sport-santé","lecons":[{"id":"apec-6-1","num":1,"titre":"Adultes sédentaires et reprise d'activité"},{"id":"apec-6-2","num":2,"titre":"Les seniors"},{"id":"apec-6-3","num":3,"titre":"Sport-santé : cadre et limites"}]},{"id":"apec-7","num":7,"titre":"Construire séances et cycles APEC","lecons":[{"id":"apec-7-1","num":1,"titre":"Une séance type commentée"},{"id":"apec-7-2","num":2,"titre":"Un cycle de 6 séances"},{"id":"apec-7-3","num":3,"titre":"Erreurs fréquentes et attentes du jury en APEC"}]}]},{"id":"apjs","code":"APJS","titre":"Jeux sportifs, sports collectifs, raquettes et adresse","sousTitre":"Domaine 2 — comprendre la logique des jeux pour les faire découvrir à tous les publics","couleur":"#7c3aed","icone":"⚽","chapitres":[{"id":"apjs-1","num":1,"titre":"Comprendre les jeux et sports","lecons":[{"id":"apjs-1-1","num":1,"titre":"Logique interne et classification des jeux"},{"id":"apjs-1-2","num":2,"titre":"Principes d'action en attaque et en défense"},{"id":"apjs-1-3","num":3,"titre":"Règles, arbitrage et rôle éducatif"},{"id":"apjs-1-4","num":4,"titre":"Jeux à effectif réduit et situations de découverte"}]},{"id":"apjs-2","num":2,"titre":"Sports collectifs d'invasion","lecons":[{"id":"apjs-2-1","num":1,"titre":"Le football en multi-activités"},{"id":"apjs-2-2","num":2,"titre":"Le handball"},{"id":"apjs-2-3","num":3,"titre":"Le basket-ball"},{"id":"apjs-2-4","num":4,"titre":"Ultimate, tchoukball, kin-ball et sports « nouveaux »"},{"id":"apjs-2-5","num":5,"titre":"Construire une situation d'invasion : les variables"}]},{"id":"apjs-3","num":3,"titre":"Sports de renvoi et raquettes","lecons":[{"id":"apjs-3-1","num":1,"titre":"Le badminton"},{"id":"apjs-3-2","num":2,"titre":"Le tennis de table"},{"id":"apjs-3-3","num":3,"titre":"Volley et jeux de renvoi adaptés"},{"id":"apjs-3-4","num":4,"titre":"Concevoir une progression en jeux de renvoi"}]},{"id":"apjs-4","num":4,"titre":"Jeux d'opposition, athlétisme ludique et adresse","lecons":[{"id":"apjs-4-1","num":1,"titre":"Jeux d'opposition et de lutte en sécurité"},{"id":"apjs-4-2","num":2,"titre":"Athlétisme ludique : courir, sauter, lancer"},{"id":"apjs-4-3","num":3,"titre":"Activités d'adresse et de précision"},{"id":"apjs-4-4","num":4,"titre":"Roller et engins à roulettes"}]},{"id":"apjs-5","num":5,"titre":"Jeux traditionnels et coopératifs","lecons":[{"id":"apjs-5-1","num":1,"titre":"Les jeux de poursuite et jeux traditionnels"},{"id":"apjs-5-2","num":2,"titre":"Jeux coopératifs et de cohésion"},{"id":"apjs-5-3","num":3,"titre":"Adapter un jeu avec les variables"},{"id":"apjs-5-4","num":4,"titre":"Les grands jeux et les organisations ludiques"}]},{"id":"apjs-6","num":6,"titre":"Construire séances et cycles APJS","lecons":[{"id":"apjs-6-1","num":1,"titre":"Une séance type commentée"},{"id":"apjs-6-2","num":2,"titre":"Un cycle de 6 séances"},{"id":"apjs-6-3","num":3,"titre":"Erreurs fréquentes et attentes du jury en APJS"}]}]},{"id":"apen","code":"APEN","titre":"Activités physiques en espace naturel","sousTitre":"Domaine 3 — course d'orientation, marche nordique, VTT, randonnée : encadrer dehors en sécurité","couleur":"#0d9488","icone":"🧭","chapitres":[{"id":"apen-1","num":1,"titre":"Encadrer en milieu naturel","lecons":[{"id":"apen-1-1","num":1,"titre":"Spécificités et réglementation du milieu naturel"},{"id":"apen-1-2","num":2,"titre":"Préparer une sortie : la fiche de sortie"},{"id":"apen-1-3","num":3,"titre":"Météo, saisons et risques naturels"},{"id":"apen-1-4","num":4,"titre":"Sécurité et secours en extérieur"},{"id":"apen-1-5","num":5,"titre":"Environnement et écoresponsabilité"}]},{"id":"apen-2","num":2,"titre":"Course d'orientation","lecons":[{"id":"apen-2-1","num":1,"titre":"Lire une carte de course d'orientation"},{"id":"apen-2-2","num":2,"titre":"Boussole, azimut et techniques de progression"},{"id":"apen-2-3","num":3,"titre":"Les formats pédagogiques de la course d'orientation"},{"id":"apen-2-4","num":4,"titre":"Sécurité et organisation d'une séance de course d'orientation"},{"id":"apen-2-5","num":5,"titre":"Un cycle de 6 séances de course d'orientation"}]},{"id":"apen-3","num":3,"titre":"Marche nordique et randonnée","lecons":[{"id":"apen-3-1","num":1,"titre":"La technique de marche nordique"},{"id":"apen-3-2","num":2,"titre":"Matériel, terrain et publics en marche nordique"},{"id":"apen-3-3","num":3,"titre":"Construire une séance de marche nordique"},{"id":"apen-3-4","num":4,"titre":"Randonnée pédestre : préparation et conduite"}]},{"id":"apen-4","num":4,"titre":"VTT","lecons":[{"id":"apen-4-1","num":1,"titre":"Matériel VTT et vérifications avant départ"},{"id":"apen-4-2","num":2,"titre":"Techniques de base en VTT"},{"id":"apen-4-3","num":3,"titre":"Code de la route, espaces et autres usagers"},{"id":"apen-4-4","num":4,"titre":"Conduire une sortie VTT en groupe"}]},{"id":"apen-5","num":5,"titre":"Autres activités de pleine nature","lecons":[{"id":"apen-5-1","num":1,"titre":"Run and bike, biathlon laser et trail découverte"},{"id":"apen-5-2","num":2,"titre":"Jeux et parcours nature"},{"id":"apen-5-3","num":3,"titre":"Adapter les activités de pleine nature aux publics"}]},{"id":"apen-6","num":6,"titre":"Construire séances et cycles APEN","lecons":[{"id":"apen-6-1","num":1,"titre":"Une séance type commentée : découverte de la course d'orientation"},{"id":"apen-6-2","num":2,"titre":"Erreurs fréquentes et attentes du jury en APEN"}]}]},{"id":"regl","code":"CADRE","titre":"Réglementation, cadre professionnel et éthique","sousTitre":"Ce que la loi attend de toi, ta structure, tes responsabilités et le paysage sportif français","couleur":"#4b5563","icone":"⚖️","chapitres":[{"id":"regl-1","num":1,"titre":"L'éducateur sportif et la loi","lecons":[{"id":"regl-1-1","num":1,"titre":"L'obligation de qualification : l'article L. 212-1"},{"id":"regl-1-2","num":2,"titre":"Déclaration d'activité et carte professionnelle"},{"id":"regl-1-3","num":3,"titre":"Honorabilité et incapacités d'exercer"},{"id":"regl-1-4","num":4,"titre":"Le statut de stagiaire et d'apprenti en formation"}]},{"id":"regl-2","num":2,"titre":"Les obligations de la structure","lecons":[{"id":"regl-2-1","num":1,"titre":"L'établissement d'APS et ses obligations"},{"id":"regl-2-2","num":2,"titre":"Assurances : ce qui est obligatoire, ce qui protège"},{"id":"regl-2-3","num":3,"titre":"Certificat médical, questionnaire de santé et licence"},{"id":"regl-2-4","num":4,"titre":"Déclaration d'accident grave et gestion des incidents"},{"id":"regl-2-5","num":5,"titre":"Les accueils collectifs de mineurs (ACM)"}]},{"id":"regl-3","num":3,"titre":"Responsabilités","lecons":[{"id":"regl-3-1","num":1,"titre":"La responsabilité civile"},{"id":"regl-3-2","num":2,"titre":"La responsabilité pénale"},{"id":"regl-3-3","num":3,"titre":"Obligation de moyens, de prudence et de diligence"},{"id":"regl-3-4","num":4,"titre":"Cinq cas pratiques de responsabilité"}]},{"id":"regl-4","num":4,"titre":"Emploi et statuts","lecons":[{"id":"regl-4-1","num":1,"titre":"La convention collective du sport et la fiche de poste"},{"id":"regl-4-2","num":2,"titre":"Le contrat d'apprentissage"},{"id":"regl-4-3","num":3,"titre":"Fonction publique territoriale et exercice indépendant"},{"id":"regl-4-4","num":4,"titre":"Droits et devoirs du salarié"}]},{"id":"regl-5","num":5,"titre":"Valeurs, éthique et protection des publics","lecons":[{"id":"regl-5-1","num":1,"titre":"Valeurs de la République et laïcité dans le sport"},{"id":"regl-5-2","num":2,"titre":"Lutte contre les discriminations et égalité"},{"id":"regl-5-3","num":3,"titre":"Prévenir et signaler les violences"},{"id":"regl-5-4","num":4,"titre":"Éthique, intégrité et exemplarité"}]},{"id":"regl-6","num":6,"titre":"Le paysage sportif français","lecons":[{"id":"regl-6-1","num":1,"titre":"L'État et ses services déconcentrés"},{"id":"regl-6-2","num":2,"titre":"Le mouvement sportif"},{"id":"regl-6-3","num":3,"titre":"Collectivités territoriales et équipements sportifs"},{"id":"regl-6-4","num":4,"titre":"Sport, handicap, santé et nouvelles pratiques"}]}]},{"id":"secours","code":"SECOURS","titre":"Santé, secours et prévention des blessures","sousTitre":"Prévenir, reconnaître, agir : les réflexes d'un éducateur responsable","couleur":"#dc2626","icone":"🩺","chapitres":[{"id":"secours-1","num":1,"titre":"Prévenir","lecons":[{"id":"secours-1-1","num":1,"titre":"Échauffement et retour au calme : la prévention n°1"},{"id":"secours-1-2","num":2,"titre":"Chaleur, froid, hydratation : adapter la séance au climat"},{"id":"secours-1-3","num":3,"titre":"Charge d'entraînement et jeunes en croissance"},{"id":"secours-1-4","num":4,"titre":"Équipements de protection, matériel et environnement de pratique"}]},{"id":"secours-2","num":2,"titre":"Agir en cas d'accident","lecons":[{"id":"secours-2-1","num":1,"titre":"Protéger, alerter, secourir : la conduite générale"},{"id":"secours-2-2","num":2,"titre":"Malaise, perte de connaissance et position latérale de sécurité"},{"id":"secours-2-3","num":3,"titre":"Arrêt cardiaque : réanimation et défibrillateur"},{"id":"secours-2-4","num":4,"titre":"Hémorragies, plaies et saignement de nez"},{"id":"secours-2-5","num":5,"titre":"Entorse, fracture, luxation : PEACE and LOVE"},{"id":"secours-2-6","num":6,"titre":"Commotion cérébrale et traumatisme crânien"},{"id":"secours-2-7","num":7,"titre":"Asthme, hypoglycémie, allergie, épilepsie : les urgences du quotidien"}]},{"id":"secours-3","num":3,"titre":"Blessures courantes du sportif","lecons":[{"id":"secours-3-1","num":1,"titre":"Entorses et lésions ligamentaires : cheville et genou"},{"id":"secours-3-2","num":2,"titre":"Lésions musculaires et tendineuses"},{"id":"secours-3-3","num":3,"titre":"Reprise après blessure et rôle de l'éducateur"}]},{"id":"secours-4","num":4,"titre":"Bien-être et vigilance","lecons":[{"id":"secours-4-1","num":1,"titre":"Stress, sommeil et image corporelle chez les pratiquants"}]}]}];
+</script>
+<script>
+/* ===== BPJEPS MAPST — Carnet & devoirs (appli autonome, compagnon de la plateforme « Mon prof ») ===== */
+(function () {
+  'use strict';
+  /* ---------------- Structure des blocs / cours (reprise de la plateforme) ---------------- */
+  const LIBRE = { id: 'libre', code: 'LIBRE', titre: 'Notes libres', sousTitre: 'Tout ce qui ne rentre pas dans un cours précis', couleur: '#64748b', icone: '📝', chapitres: [] };
+  const MODS = (window.CARNET_STRUCTURE || []).concat([LIBRE]);
+  const MOD = {}, LES = {};
+  MODS.forEach(m => { MOD[m.id] = m; (m.chapitres || []).forEach(c => (c.lecons || []).forEach(l => { LES[l.id] = Object.assign({}, l, { module: m, chapitre: c }); })); });
+
+  /* ---------------- État ---------------- */
+  const KEY = 'bpjeps_carnet_v1';
+  const DEF = () => ({ settings: { theme: 'auto', platformUrl: '', fontSize: 16, prenom: 'Pablo' }, notes: [], devoirs: [], lastExport: null, onboarded: false, visits: 0 });
+  function load() { try { const o = JSON.parse(localStorage.getItem(KEY) || 'null'); if (o && o.settings) { const d = DEF(); return Object.assign(d, o, { settings: Object.assign(d.settings, o.settings) }); } } catch (e) { } return DEF(); }
+  let S = load();
+  let saveTimer = null;
+  function updateBadge() { const b = $('#dev-badge'); if (b) { const n = devUrgent(); b.textContent = n; b.hidden = !n; } }
+  function save() { updateBadge(); clearTimeout(saveTimer); saveTimer = setTimeout(() => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('Sauvegarde impossible : mémoire du navigateur pleine ?'); } }, 250); }
+  function saveNow() { clearTimeout(saveTimer); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { } }
+
+  /* ---------------- Utilitaires ---------------- */
+  const $ = (s, r) => (r || document).querySelector(s), $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const pad = n => String(n).padStart(2, '0');
+  const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const today = () => iso(new Date());
+  const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+  const daysDiff = s => Math.round((parse(s) - parse(today())) / 864e5);
+  const fmtDate = s => s ? parse(s).toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }) : '';
+  const fmtLong = s => s ? parse(s).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) : '';
+  const fmtTs = t => new Date(t).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) + ' ' + new Date(t).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const plural = (n, w) => `${n} ${w}${n > 1 ? 's' : ''}`;
+  function toast(msg, ms) { $$('.toast').forEach(t => t.remove()); const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), ms || 2200); }
+  function modal(html, onReady) { $$('.modal-bg').forEach(m => m.remove()); const bg = document.createElement('div'); bg.className = 'modal-bg'; bg.innerHTML = `<div class="modal" role="dialog">${html}</div>`; document.body.appendChild(bg); bg.addEventListener('click', e => { if (e.target === bg) bg.remove(); }); $$('[data-close]', bg).forEach(b => b.addEventListener('click', () => bg.remove())); if (onReady) onReady(bg); return bg; }
+  function confirmBox(msg, ok) { const bg = modal(`<h2>Confirmer</h2><p>${esc(msg)}</p><div class="row" style="justify-content:flex-end"><button class="btn" data-close>Annuler</button><button class="btn btn-danger" id="cf-ok">Confirmer</button></div>`); $('#cf-ok', bg).addEventListener('click', () => { bg.remove(); ok(); }); }
+  const modOf = id => MOD[id] || LIBRE;
+  const lesOf = id => id ? LES[id] : null;
+  const platformUrl = () => { let u = (S.settings.platformUrl || '').trim(); if (!u) return ''; if (!/^https?:\/\//i.test(u)) u = 'https://' + u; u = u.replace(/#.*$/, ''); if (!/\.html$/i.test(u) && !u.endsWith('/')) u += '/'; return u; };
+  const platformLink = (kind, id) => { const u = platformUrl(); return u ? `${u}#/${kind}/${id}` : ''; };
+  function platformBtn(kind, id, label) { const u = platformLink(kind, id); return u ? `<a class="btn btn-sm" href="${esc(u)}" target="_blank" rel="noopener">↗ ${esc(label || 'Ouvrir sur la plateforme')}</a>` : `<a class="btn btn-sm muted" href="#/reglages" title="Renseigne l'adresse de la plateforme dans les réglages">↗ ${esc(label || 'Ouvrir sur la plateforme')}</a>`; }
+  const notesOf = f => S.notes.filter(f).sort((a, b) => b.updatedAt - a.updatedAt);
+  const devOpen = d => d.status !== 'done';
+  const devUrgent = () => S.devoirs.filter(d => devOpen(d) && d.due && daysDiff(d.due) <= 7).length;
+  const textOf = html => { const d = document.createElement('div'); d.innerHTML = html || ''; return (d.textContent || '').replace(/\s+/g, ' ').trim(); };
+  const words = t => (t || '').split(/\s+/).filter(Boolean).length;
+  const snippet = (text, q, n) => { const i = norm(text).indexOf(norm(q)); if (i < 0) return esc(text.slice(0, n || 140)); const a = Math.max(0, i - 50), b = Math.min(text.length, i + q.length + 90); return (a ? '… ' : '') + esc(text.slice(a, i)) + '<mark>' + esc(text.slice(i, i + q.length)) + '</mark>' + esc(text.slice(i + q.length, b)) + (b < text.length ? ' …' : ''); };
+
+  /* ---------------- Nettoyage du HTML des notes ---------------- */
+  const ALLOW = { P: 1, DIV: 1, BR: 1, B: 1, STRONG: 1, I: 1, EM: 1, U: 1, S: 1, STRIKE: 1, MARK: 1, H2: 1, H3: 1, UL: 1, OL: 1, LI: 1, A: 1, INPUT: 1, BLOCKQUOTE: 1, CODE: 1, PRE: 1, HR: 1 };
+  function rename(el, tag) { const n = el.ownerDocument.createElement(tag); while (el.firstChild) n.appendChild(el.firstChild); el.replaceWith(n); return n; }
+  function unwrap(el) { const p = el.parentNode; while (el.firstChild) p.insertBefore(el.firstChild, el); el.remove(); }
+  function clean(node) {
+    Array.from(node.childNodes).forEach(ch => {
+      if (ch.nodeType === 3) return;
+      if (ch.nodeType !== 1) { ch.remove(); return; }
+      let tag = ch.nodeName;
+      if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'IFRAME' || tag === 'OBJECT' || tag === 'SVG' || tag === 'IMG') { ch.remove(); return; }
+      if (tag === 'H1' || tag === 'H4' || tag === 'H5' || tag === 'H6') { ch = rename(ch, tag === 'H1' ? 'H2' : 'H3'); tag = ch.nodeName; }
+      if ((tag === 'SPAN' || tag === 'FONT') && /background/i.test(ch.getAttribute('style') || '')) { ch = rename(ch, 'MARK'); tag = 'MARK'; }
+      if (tag === 'TABLE' || tag === 'TR' || tag === 'TD' || tag === 'TH' || tag === 'TBODY' || tag === 'THEAD') { clean(ch); if (tag === 'TR') ch.appendChild(ch.ownerDocument.createElement('br')); unwrap(ch); return; }
+      if (!ALLOW[tag]) { clean(ch); unwrap(ch); return; }
+      if (tag === 'INPUT') { if ((ch.getAttribute('type') || '').toLowerCase() !== 'checkbox') { ch.remove(); return; } const on = ch.hasAttribute('checked') || ch.checked; Array.from(ch.attributes).forEach(a => ch.removeAttribute(a.name)); ch.setAttribute('type', 'checkbox'); if (on) ch.setAttribute('checked', ''); return; }
+      const href = tag === 'A' ? (ch.getAttribute('href') || '') : '';
+      const hl = tag !== 'MARK' && /background/i.test(ch.getAttribute('style') || '');
+      Array.from(ch.attributes).forEach(a => ch.removeAttribute(a.name));
+      if (hl) { const mk = ch.ownerDocument.createElement('mark'); while (ch.firstChild) mk.appendChild(ch.firstChild); ch.appendChild(mk); }
+      if (tag === 'A') { if (/^(https?:\/\/|mailto:|#)/i.test(href)) { ch.setAttribute('href', href); ch.setAttribute('target', '_blank'); ch.setAttribute('rel', 'noopener'); } else { clean(ch); unwrap(ch); return; } }
+      clean(ch);
+    });
+  }
+  function sanitize(html) { const doc = new DOMParser().parseFromString('<div id="r">' + (html || '') + '</div>', 'text/html'); const r = doc.getElementById('r'); clean(r); return r.innerHTML; }
+
+  /* ---------------- Routage & coquille ---------------- */
+  const main = $('#main');
+  function parseHash() { const h = location.hash.replace(/^#\/?/, ''); const parts = h.split('/').map(p => { try { return decodeURIComponent(p); } catch (e) { return p; } }); return { name: parts[0] || 'accueil', args: parts.slice(1) }; }
+  function go(path) { location.hash = '#/' + path; }
+  const ROUTES = {};
+  function render() {
+    $$('.modal-bg').forEach(m => m.remove()); $$('.toast').forEach(t => t.remove()); closeSidebar();
+    const { name, args } = parseHash(); const fn = ROUTES[name] || ROUTES.accueil;
+    try { fn.apply(null, args); } catch (e) { console.error(e); main.innerHTML = `<div class="content"><div class="card"><h2>Oups</h2><p>Une erreur est survenue : ${esc(e.message)}</p><a class="btn" href="#/accueil">Retour à l'accueil</a></div></div>`; }
+    $$('#nav a').forEach(a => a.classList.toggle('active', a.dataset.route === name || (name === 'note' && a.dataset.route === 'notes') || (name === 'tag' && a.dataset.route === 'tags')));
+    updateBadge();
+    window.scrollTo(0, 0);
+  }
+  function content(html, cls) { main.innerHTML = `<div class="content ${cls || ''}">${html}</div>`; }
+  function shell() {
+    $('#version').textContent = 'v' + (window.CARNET_VERSION || '');
+    const nav = $('#nav');
+    nav.innerHTML = `<a href="#/accueil" data-route="accueil"><span class="ic">🏠</span> Tableau de bord</a>
+      <a href="#/devoirs" data-route="devoirs"><span class="ic">📌</span> Devoirs <span class="badge badge-danger" id="dev-badge" hidden></span></a>
+      <a href="#/favoris" data-route="favoris"><span class="ic">⭐</span> Favoris</a>
+      <a href="#/tags" data-route="tags"><span class="ic">🏷️</span> Tags</a>
+      <div class="nav-section">Mes notes par bloc</div>
+      <a href="#/notes" data-route="notes"><span class="ic">📚</span> Tous les blocs</a>
+      ${MODS.map(m => `<a class="sub" href="#/notes/${m.id}" data-mod="${m.id}"><span class="mc-dot" style="background:${m.couleur}"></span>${esc(m.code)} <span class="badge" data-count="${m.id}"></span></a>`).join('')}
+      <div class="nav-section">Outils</div>
+      <a href="#/reglages" data-route="reglages"><span class="ic">⚙️</span> Réglages &amp; sauvegarde</a>`;
+    nav.addEventListener('click', closeSidebar);
+    $('#menu-btn').addEventListener('click', () => { const sb = $('#sidebar'); sb.classList.toggle('open'); if (sb.classList.contains('open')) { const bg = document.createElement('div'); bg.className = 'sidebar-bg'; bg.id = 'sidebar-bg'; bg.addEventListener('click', closeSidebar); document.body.appendChild(bg); } else closeSidebar(); });
+    $('#theme-btn').addEventListener('click', () => { const cur = document.documentElement.getAttribute('data-theme'); S.settings.theme = cur === 'dark' ? 'light' : 'dark'; applyTheme(); save(); });
+    const si = $('#search-input'); let st;
+    si.addEventListener('input', () => { clearTimeout(st); st = setTimeout(() => { const q = si.value.trim(); if (q.length >= 2) go('recherche/' + encodeURIComponent(q)); }, 350); });
+    si.addEventListener('keydown', e => { if (e.key === 'Enter') { const q = si.value.trim(); if (q) go('recherche/' + encodeURIComponent(q)); } });
+    updateCounts();
+  }
+  function closeSidebar() { const sb = $('#sidebar'); if (sb) sb.classList.remove('open'); const bg = $('#sidebar-bg'); if (bg) bg.remove(); }
+  function updateCounts() { MODS.forEach(m => { const el = $(`[data-count="${m.id}"]`); if (!el) return; const n = S.notes.filter(x => x.moduleId === m.id).length; el.textContent = n; el.hidden = !n; }); }
+  function applyTheme() { const t = S.settings.theme || 'auto'; const dark = t === 'dark' || (t === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches); document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light'); document.documentElement.style.setProperty('--fs', (S.settings.fontSize || 16) + 'px'); }
+  function setNewNoteContext(mod, lecon) { const b = $('#new-note-btn'); if (b) b.href = '#/note/new/' + (mod || 'libre') + (lecon ? '/' + lecon : ''); }
+
+  /* ---------------- Composants ---------------- */
+  function moduleChip(m) { return `<a class="chip" href="#/notes/${m.id}"><span class="dot" style="background:${m.couleur}"></span>${esc(m.code)}</a>`; }
+  function noteRow(n, opts) { const m = modOf(n.moduleId), l = lesOf(n.leconId); const o = opts || {}; return `<a class="note-row" href="#/note/${n.id}" style="--mc:${m.couleur}"><div class="ic">${m.icone}</div><div style="min-width:0;flex:1"><div class="t">${esc(n.titre || 'Sans titre')}</div><div class="s">${o.noModule ? '' : esc(m.code) + ' · '}${l ? esc(l.titre) + ' · ' : ''}modifiée le ${fmtTs(n.updatedAt)}${n.tags && n.tags.length ? ' · ' + n.tags.map(t => '#' + esc(t)).join(' ') : ''}</div>${n.text ? `<div class="x">${esc(n.text.slice(0, 180))}</div>` : ''}</div>${n.fav ? '<span class="fav">★</span>' : ''}</a>`; }
+  function dueLabel(d) { if (!d.due) return '<span class="muted">sans date</span>'; const k = daysDiff(d.due); const cls = k < 0 ? 'late' : k === 0 ? 'today' : k <= 3 ? 'soon' : ''; const txt = k < 0 ? `en retard de ${plural(-k, 'jour')}` : k === 0 ? "aujourd'hui" : k === 1 ? 'demain' : `J-${k}`; return `<span class="due ${cls}">${txt} · ${fmtDate(d.due)}</span>`; }
+  function devRow(d) { const m = modOf(d.moduleId), l = lesOf(d.leconId); return `<div class="dev ${d.status === 'done' ? 'done' : ''}" style="--mc:${m.couleur}" data-id="${d.id}"><input type="checkbox" data-done="${d.id}" ${d.status === 'done' ? 'checked' : ''} aria-label="Terminé"><div class="body" data-edit="${d.id}"><div class="t"><span class="prio ${d.prio || 'normale'}" title="Priorité ${d.prio || 'normale'}"></span> ${esc(d.titre)}</div><div class="s">${d.status === 'doing' ? '<span class="badge badge-warn">en cours</span>' : ''}${dueLabel(d)}<span>${esc(m.code)}${l ? ' · ' + esc(l.titre) : ''}</span>${d.lien ? `<a href="${esc(d.lien)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">🔗 lien</a>` : ''}</div>${d.desc ? `<div class="d">${esc(d.desc)}</div>` : ''}</div></div>`; }
+  function bindDevRows(root) {
+    $$('[data-done]', root).forEach(cb => cb.addEventListener('change', () => { const d = S.devoirs.find(x => x.id === cb.dataset.done); if (!d) return; d.status = cb.checked ? 'done' : 'todo'; d.doneAt = cb.checked ? Date.now() : null; save(); toast(cb.checked ? 'Devoir terminé ✓' : 'Devoir remis à faire'); render(); }));
+    $$('[data-edit]', root).forEach(el => el.addEventListener('click', () => devForm(el.dataset.edit)));
+  }
+  function lessonSelect(modId, sel, id) { const m = modOf(modId); return `<select class="select" id="${id}"><option value="">— aucun cours précis —</option>${(m.chapitres || []).map(c => `<optgroup label="${esc(c.num + '. ' + c.titre)}">${c.lecons.map(l => `<option value="${l.id}" ${l.id === sel ? 'selected' : ''}>${esc(c.num + '.' + l.num + ' ' + l.titre)}</option>`).join('')}</optgroup>`).join('')}</select>`; }
+  function moduleSelect(sel, id) { return `<select class="select" id="${id}">${MODS.map(m => `<option value="${m.id}" ${m.id === sel ? 'selected' : ''}>${esc(m.code + ' — ' + (m.titre.length > 42 ? m.titre.slice(0, 40) + '…' : m.titre))}</option>`).join('')}</select>`; }
+
+  /* ---------------- Accueil ---------------- */
+  ROUTES.accueil = function () {
+    setNewNoteContext();
+    const open = S.devoirs.filter(devOpen).filter(d => d.due).sort((a, b) => a.due.localeCompare(b.due));
+    const late = open.filter(d => daysDiff(d.due) < 0), week = open.filter(d => daysDiff(d.due) >= 0 && daysDiff(d.due) <= 7);
+    const recent = notesOf(() => true).slice(0, 6), favs = notesOf(n => n.fav).slice(0, 6);
+    const noDate = S.devoirs.filter(devOpen).filter(d => !d.due);
+    const days = S.lastExport ? Math.round((Date.now() - S.lastExport) / 864e5) : null;
+    const needBackup = (S.notes.length + S.devoirs.length) >= 3 && (days === null || days > 14);
+    const h = new Date().getHours(); const hello = h < 5 ? 'Bonne nuit' : h < 12 ? 'Bonjour' : h < 18 ? 'Bon après-midi' : 'Bonsoir';
+    content(`<div class="hero"><div><h1>${hello} ${esc(S.settings.prenom || '')} 👋</h1><p>${fmtLong(today())} · ${plural(S.notes.length, 'note')} · ${plural(S.devoirs.filter(devOpen).length, 'devoir')} à faire${late.length ? ` · <b>${plural(late.length, 'retard')}</b>` : ''}</p>
+        <div class="row mt"><a class="btn" href="#/note/new/libre">＋ Nouvelle note</a><a class="btn btn-ghost" href="#/devoirs/nouveau">＋ Nouveau devoir</a></div></div></div>
+      ${!platformUrl() ? `<div class="card mt" style="border-color:var(--accent)"><b>Relie le carnet à ta plateforme.</b> <span class="muted">Renseigne l'adresse GitHub Pages de « Mon prof » dans les réglages : chaque note aura un bouton pour ouvrir le cours correspondant.</span> <a class="btn btn-sm" href="#/reglages">Réglages</a></div>` : ''}
+      ${needBackup ? `<div class="card mt" style="border-color:var(--warn)"><b>Pense à sauvegarder.</b> <span class="muted">${days === null ? 'Tu n\'as encore jamais exporté ton carnet' : `Dernier export il y a ${plural(days, 'jour')}`} : tes notes ne sont que dans ce navigateur.</span> <a class="btn btn-sm" href="#/reglages">Exporter</a></div>` : ''}
+      <div class="grid grid-2 mt">
+        <div class="card"><div class="row between"><h2>📌 À rendre</h2><a class="btn btn-sm" href="#/devoirs">Tout voir</a></div>
+          ${late.length || week.length ? `<div class="dev-list" id="home-devs">${late.concat(week).slice(0, 8).map(devRow).join('')}</div>` : `<p class="empty">Rien à rendre cette semaine${noDate.length ? ` (${plural(noDate.length, 'devoir')} sans date)` : ''}. 🎉</p>`}</div>
+        <div class="card"><div class="row between"><h2>🕘 Dernières notes</h2><a class="btn btn-sm" href="#/notes">Mes blocs</a></div>
+          ${recent.length ? `<div class="note-list">${recent.map(n => noteRow(n)).join('')}</div>` : `<p class="empty">Aucune note pour l'instant. Choisis un bloc et commence à écrire pendant le cours.</p>`}</div>
+      </div>
+      ${favs.length ? `<div class="card mt"><div class="row between"><h2>⭐ Favoris</h2><a class="btn btn-sm" href="#/favoris">Tout voir</a></div><div class="note-list">${favs.map(n => noteRow(n)).join('')}</div></div>` : ''}
+      <h2 class="mt-lg" style="margin-bottom:10px">Mes blocs</h2><div class="grid grid-3">${MODS.map(moduleCard).join('')}</div>`);
+    bindDevRows(main);
+  };
+  function moduleCard(m) { const n = S.notes.filter(x => x.moduleId === m.id).length, d = S.devoirs.filter(x => x.moduleId === m.id && devOpen(x)).length; return `<a class="module-card" href="#/notes/${m.id}" style="--mc:${m.couleur}"><div class="mc-head"><div class="mc-icon">${m.icone}</div><div><div class="mc-code">${esc(m.code)}</div><div class="mc-title">${esc(m.titre)}</div></div></div><div class="mc-sub">${plural(n, 'note')}${d ? ` · ${plural(d, 'devoir')} à faire` : ''}</div></a>`; }
+
+  /* ---------------- Notes : blocs, cours, listes ---------------- */
+  ROUTES.notes = function (modId, leconId) {
+    if (!modId) { setNewNoteContext(); content(`<h1 class="page-title">📚 Mes notes par bloc</h1><p class="page-sub">Le même découpage que la plateforme : choisis un bloc, puis le cours pour y accrocher tes notes.</p><div class="grid grid-3">${MODS.map(moduleCard).join('')}</div>`); return; }
+    const m = MOD[modId]; if (!m) return ROUTES.notes();
+    if (leconId) return lessonPage(m, leconId);
+    setNewNoteContext(m.id);
+    const free = notesOf(n => n.moduleId === m.id && !n.leconId), all = S.notes.filter(n => n.moduleId === m.id), devs = S.devoirs.filter(d => d.moduleId === m.id && devOpen(d)).sort((a, b) => (a.due || '9').localeCompare(b.due || '9'));
+    content(`<div class="crumbs"><a href="#/notes">Mes notes</a> › <span>${esc(m.code)}</span></div>
+      <div class="module-head" style="--mc:${m.couleur}"><div class="big-icon">${m.icone}</div><div style="flex:1"><div class="tiny bold" style="color:${m.couleur};letter-spacing:.6px">${esc(m.code)}</div><h1>${esc(m.titre)}</h1><div class="muted small">${esc(m.sousTitre || '')} · ${plural(all.length, 'note')}</div></div></div>
+      <div class="row mt"><a class="btn btn-primary" href="#/note/new/${m.id}">＋ Nouvelle note ${m.id === 'libre' ? '' : 'sur ce bloc'}</a><a class="btn" href="#/devoirs/nouveau/${m.id}">＋ Devoir</a>${m.id !== 'libre' ? platformBtn('cours', m.id, 'Ouvrir le bloc sur la plateforme') : ''}</div>
+      ${devs.length ? `<div class="card mt"><h2>📌 Devoirs à faire sur ce bloc</h2><div class="dev-list">${devs.map(devRow).join('')}</div></div>` : ''}
+      ${free.length || m.id === 'libre' ? `<div class="card mt"><h2>${m.id === 'libre' ? 'Mes notes libres' : 'Notes générales du bloc'}</h2>${free.length ? `<div class="note-list">${free.map(n => noteRow(n, { noModule: true })).join('')}</div>` : '<p class="empty">Aucune note libre pour l\'instant.</p>'}</div>` : ''}
+      ${(m.chapitres || []).map(c => `<div class="chapter" style="--mc:${m.couleur}"><h3 class="chapter-title"><span class="num">${c.num}</span>${esc(c.titre)}</h3><div class="lesson-list">${c.lecons.map(l => { const k = S.notes.filter(n => n.leconId === l.id).length, dk = S.devoirs.filter(d => d.leconId === l.id && devOpen(d)).length; return `<a class="lesson-row ${k ? 'has-notes' : ''}" href="#/notes/${m.id}/${l.id}"><span class="lt">${c.num}.${l.num} ${esc(l.titre)}</span><span class="meta">${dk ? `<span class="badge badge-warn">${plural(dk, 'devoir')}</span>` : ''}${k ? `<span class="badge badge-primary">${plural(k, 'note')}</span>` : '<span class="tiny muted">＋ note</span>'}</span></a>`; }).join('')}</div></div>`).join('')}`);
+    bindDevRows(main);
+  };
+  function lessonPage(m, leconId) {
+    const l = LES[leconId]; if (!l) return go('notes/' + m.id);
+    setNewNoteContext(m.id, l.id);
+    const ns = notesOf(n => n.leconId === l.id), devs = S.devoirs.filter(d => d.leconId === l.id).sort((a, b) => (a.due || '9').localeCompare(b.due || '9'));
+    if (!ns.length && !devs.length) return go(`note/new/${m.id}/${l.id}`);
+    content(`<div class="crumbs"><a href="#/notes">Mes notes</a> › <a href="#/notes/${m.id}">${esc(m.code)}</a> › <span>${esc(l.chapitre.titre)}</span></div>
+      <div class="module-head" style="--mc:${m.couleur}"><div class="big-icon">${m.icone}</div><div style="flex:1"><div class="tiny bold" style="color:${m.couleur}">${esc(m.code)} · ${esc(l.chapitre.num + '.' + l.num)}</div><h1>${esc(l.titre)}</h1></div></div>
+      <div class="row mt"><a class="btn btn-primary" href="#/note/new/${m.id}/${l.id}">＋ Nouvelle note sur ce cours</a><a class="btn" href="#/devoirs/nouveau/${m.id}/${l.id}">＋ Devoir</a>${platformBtn('lecon', l.id, 'Ouvrir le cours sur la plateforme')}</div>
+      <div class="card mt"><h2>Mes notes (${ns.length})</h2>${ns.length ? `<div class="note-list">${ns.map(n => noteRow(n, { noModule: true })).join('')}</div>` : '<p class="empty">Pas encore de note sur ce cours.</p>'}</div>
+      ${devs.length ? `<div class="card mt"><h2>📌 Devoirs liés</h2><div class="dev-list">${devs.map(devRow).join('')}</div></div>` : ''}`);
+    bindDevRows(main);
+  }
+  ROUTES.favoris = function () { setNewNoteContext(); const ns = notesOf(n => n.fav); content(`<h1 class="page-title">⭐ Favoris</h1><p class="page-sub">Les notes que tu as marquées d'une étoile.</p>${ns.length ? `<div class="note-list">${ns.map(n => noteRow(n)).join('')}</div>` : '<div class="card"><p class="empty">Aucun favori : ouvre une note et clique sur ☆.</p></div>'}`); };
+  ROUTES.tags = function () { setNewNoteContext(); const c = {}; S.notes.forEach(n => (n.tags || []).forEach(t => { c[t] = (c[t] || 0) + 1; })); const tags = Object.keys(c).sort((a, b) => c[b] - c[a] || a.localeCompare(b)); content(`<h1 class="page-title">🏷️ Tags</h1><p class="page-sub">Ajoute des tags dans une note (ex. « examen », « à revoir », « jury ») pour la retrouver ici.</p>${tags.length ? `<div class="card"><div class="tags">${tags.map(t => `<a class="tag" href="#/tag/${encodeURIComponent(t)}">#${esc(t)} <span class="muted">${c[t]}</span></a>`).join('')}</div></div>` : '<div class="card"><p class="empty">Aucun tag pour l\'instant.</p></div>'}`); };
+  ROUTES.tag = function (t) { setNewNoteContext(); const ns = notesOf(n => (n.tags || []).includes(t)); content(`<div class="crumbs"><a href="#/tags">Tags</a> › <span>#${esc(t)}</span></div><h1 class="page-title">#${esc(t)}</h1><p class="page-sub">${plural(ns.length, 'note')}</p><div class="note-list">${ns.map(n => noteRow(n)).join('')}</div>`); };
+  ROUTES.recherche = function (q) {
+    setNewNoteContext(); q = q || ''; const si = $('#search-input'); if (si && si.value !== q) si.value = q; const nq = norm(q);
+    const ns = S.notes.filter(n => nq && (norm(n.titre).includes(nq) || norm(n.text).includes(nq) || (n.tags || []).some(t => norm(t).includes(nq)))).sort((a, b) => b.updatedAt - a.updatedAt);
+    const ds = S.devoirs.filter(d => nq && (norm(d.titre).includes(nq) || norm(d.desc).includes(nq)));
+    const ls = Object.values(LES).filter(l => nq && norm(l.titre).includes(nq)).slice(0, 8);
+    content(`<h1 class="page-title">🔍 « ${esc(q)} »</h1><p class="page-sub">${plural(ns.length, 'note')} · ${plural(ds.length, 'devoir')} · ${plural(ls.length, 'cours')} de la plateforme</p>
+      ${ns.length ? `<div class="card"><h2>Notes</h2><div class="result-list">${ns.map(n => { const m = modOf(n.moduleId); return `<a class="note-row" href="#/note/${n.id}" style="--mc:${m.couleur}"><div class="ic">${m.icone}</div><div style="min-width:0"><div class="t">${esc(n.titre || 'Sans titre')}</div><div class="s">${esc(m.code)}${n.leconId && LES[n.leconId] ? ' · ' + esc(LES[n.leconId].titre) : ''}</div><div class="snip">${snippet(n.text || '', q)}</div></div></a>`; }).join('')}</div></div>` : ''}
+      ${ds.length ? `<div class="card mt"><h2>Devoirs</h2><div class="dev-list">${ds.map(devRow).join('')}</div></div>` : ''}
+      ${ls.length ? `<div class="card mt"><h2>Cours correspondants</h2><div class="lesson-list">${ls.map(l => `<a class="lesson-row" href="#/notes/${l.module.id}/${l.id}" style="--mc:${l.module.couleur}"><span class="lt">${esc(l.module.code)} · ${esc(l.titre)}</span><span class="tiny muted">prendre une note</span></a>`).join('')}</div></div>` : ''}
+      ${!ns.length && !ds.length && !ls.length ? '<div class="card"><p class="empty">Rien trouvé. Essaie un autre mot.</p></div>' : ''}`);
+    bindDevRows(main);
+  };
+
+  /* ---------------- Éditeur de note ---------------- */
+  ROUTES.note = function (id, modId, leconId) {
+    let n, isNew = false;
+    if (id === 'new') { const m = MOD[modId] ? modId : 'libre'; const l = LES[leconId] && LES[leconId].module.id === m ? leconId : null; n = { id: uid(), titre: l ? LES[l].titre : '', moduleId: m, leconId: l, html: '', text: '', tags: [], fav: false, createdAt: Date.now(), updatedAt: Date.now() }; isNew = true; }
+    else { n = S.notes.find(x => x.id === id); if (!n) { toast('Note introuvable'); return go('notes'); } }
+    const m = modOf(n.moduleId); setNewNoteContext(n.moduleId, n.leconId); const defaultTitle = n.titre;
+    content(`<div class="crumbs no-print"><a href="#/notes">Mes notes</a> › <a href="#/notes/${m.id}">${esc(m.code)}</a>${n.leconId && LES[n.leconId] ? ` › <a href="#/notes/${m.id}/${n.leconId}">${esc(LES[n.leconId].titre)}</a>` : ''}</div>
+      <div class="editor-head"><div class="row" style="gap:6px;flex-wrap:nowrap"><input class="editor-title" id="ed-title" placeholder="Titre de la note" value="${esc(n.titre)}" autocomplete="off"><button class="icon-btn no-print" id="ed-fav" title="Favori" style="font-size:20px;color:var(--accent)">${n.fav ? '★' : '☆'}</button></div>
+        <div class="editor-meta"><span>Bloc</span>${moduleSelect(n.moduleId, 'ed-mod')}<span>Cours</span><span class="wrap" id="ed-les-wrap">${lessonSelect(n.moduleId, n.leconId, 'ed-les')}</span><span>Tags</span><input id="ed-tags" placeholder="ex. examen, à revoir" value="${esc((n.tags || []).join(', '))}" style="min-width:160px"></div></div>
+      <div class="toolbar no-print" id="toolbar">
+        <button data-cmd="bold" title="Gras (Ctrl+B)"><b>G</b></button><button data-cmd="italic" title="Italique (Ctrl+I)"><i>I</i></button><button data-cmd="underline" title="Souligné (Ctrl+U)"><u>S</u></button><button data-cmd="strikeThrough" title="Barré"><s>ab</s></button><button data-cmd="mark" title="Surligner" style="background:var(--mark)">✎</button>
+        <span class="sep"></span><button data-cmd="h2" title="Titre">T1</button><button data-cmd="h3" title="Sous-titre">T2</button><button data-cmd="p" title="Texte normal">¶</button>
+        <span class="sep"></span><button data-cmd="ul" title="Liste à puces">• —</button><button data-cmd="ol" title="Liste numérotée">1.</button><button data-cmd="check" title="Case à cocher">☐</button><button data-cmd="quote" title="Citation / à retenir">❝</button><button data-cmd="hr" title="Séparateur">―</button>
+        <span class="sep"></span><button data-cmd="link" title="Lien">🔗</button><button data-cmd="clear" title="Effacer la mise en forme">Tx</button><button data-cmd="undo" title="Annuler">↶</button><button data-cmd="redo" title="Rétablir">↷</button>
+        <span class="status" id="ed-status">${isNew ? 'Nouvelle note' : 'Enregistrée'}</span></div>
+      <div class="editor" id="editor" contenteditable="true" data-placeholder="Écris ici pendant le cours… Astuces : « - » puis espace = liste, « [] » puis espace = case à cocher, sélectionne un mot puis ✎ pour le surligner." spellcheck="true">${sanitize(n.html)}</div>
+      <div class="editor-actions no-print">${n.leconId ? platformBtn('lecon', n.leconId, 'Ouvrir le cours sur la plateforme') : n.moduleId !== 'libre' ? platformBtn('cours', n.moduleId, 'Ouvrir le bloc sur la plateforme') : ''}<a class="btn btn-sm" href="#/devoirs/nouveau/${n.moduleId}${n.leconId ? '/' + n.leconId : ''}">📌 Créer un devoir lié</a><button class="btn btn-sm" id="ed-dup">⧉ Dupliquer</button><button class="btn btn-sm" id="ed-print">🖨 Imprimer</button><span style="flex:1"></span><button class="btn btn-sm btn-danger" id="ed-del">🗑 Supprimer</button></div>`);
+    const ed = $('#editor'), status = $('#ed-status'), title = $('#ed-title');
+    try { document.execCommand('styleWithCSS', false, false); } catch (e) { }
+    let timer = null;
+    function persist() {
+      n.html = sanitize(ed.innerHTML); n.text = textOf(n.html); n.titre = title.value.trim(); n.tags = $('#ed-tags').value.split(',').map(t => t.trim().replace(/^#/, '')).filter(Boolean); n.updatedAt = Date.now();
+      if (isNew) { if (!n.text && !n.tags.length && (!n.titre || n.titre === defaultTitle)) { status.textContent = 'Nouvelle note'; return; } S.notes.push(n); isNew = false; history.replaceState(null, '', '#/note/' + n.id); }
+      save(); updateCounts(); status.textContent = `Enregistrée ${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} · ${plural(words(n.text), 'mot')}`;
+    }
+    function schedule() { status.textContent = 'Enregistrement…'; clearTimeout(timer); timer = setTimeout(persist, 400); }
+    window._carnetFlush = () => { clearTimeout(timer); persist(); saveNow(); };
+    ed.addEventListener('input', () => { ensureBlock(); schedule(); }); title.addEventListener('input', schedule); $('#ed-tags').addEventListener('input', schedule);
+    $('#ed-mod').addEventListener('change', e => { n.moduleId = e.target.value; n.leconId = null; $('#ed-les-wrap').innerHTML = lessonSelect(n.moduleId, null, 'ed-les'); bindLes(); schedule(); });
+    function bindLes() { $('#ed-les').addEventListener('change', e => { n.leconId = e.target.value || null; if (!title.value.trim() && n.leconId) title.value = LES[n.leconId].titre; schedule(); }); }
+    bindLes();
+    $('#ed-fav').addEventListener('click', () => { n.fav = !n.fav; $('#ed-fav').textContent = n.fav ? '★' : '☆'; schedule(); });
+    $('#ed-del').addEventListener('click', () => confirmBox('Supprimer définitivement cette note ?', () => { clearTimeout(timer); S.notes = S.notes.filter(x => x.id !== n.id); saveNow(); updateCounts(); toast('Note supprimée'); go(n.leconId ? `notes/${n.moduleId}/${n.leconId}` : `notes/${n.moduleId}`); }));
+    $('#ed-dup').addEventListener('click', () => { window._carnetFlush(); if (isNew) return toast('Écris d\'abord quelque chose'); const c = Object.assign({}, n, { id: uid(), titre: (n.titre || 'Sans titre') + ' (copie)', createdAt: Date.now(), updatedAt: Date.now() }); S.notes.push(c); saveNow(); go('note/' + c.id); });
+    $('#ed-print').addEventListener('click', () => window.print());
+    // Barre d'outils
+    $$('#toolbar button[data-cmd]').forEach(b => { b.addEventListener('mousedown', e => e.preventDefault()); b.addEventListener('click', () => { ed.focus(); cmd(b.dataset.cmd); schedule(); }); });
+    function cmd(c) {
+      const ex = (a, v) => document.execCommand(a, false, v);
+      if (c === 'h2' || c === 'h3' || c === 'p' || c === 'quote') ex('formatBlock', c === 'quote' ? 'blockquote' : c === 'p' ? 'p' : c);
+      else if (c === 'ul') ex('insertUnorderedList'); else if (c === 'ol') ex('insertOrderedList');
+      else if (c === 'check') insertCheckbox(); else if (c === 'mark') toggleMark(); else if (c === 'hr') ex('insertHorizontalRule');
+      else if (c === 'link') { const sel = getSelection(); const u = prompt('Adresse du lien (https://…)', sel && !sel.isCollapsed && /^https?:\/\//.test(sel.toString().trim()) ? sel.toString().trim() : 'https://'); if (u && /^https?:\/\/.+/.test(u)) { if (sel && sel.isCollapsed) ex('insertHTML', `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>&nbsp;`); else ex('createLink', u); } }
+      else if (c === 'clear') { ex('removeFormat'); ex('formatBlock', 'p'); $$('mark', ed).forEach(mk => { if (getSelection().containsNode(mk, true)) unwrap(mk); }); }
+      else ex(c);
+      normalize();
+    }
+    function insertCheckbox() { document.execCommand('insertHTML', false, '<input type="checkbox">&nbsp;'); }
+    function toggleMark() { const sel = getSelection(); if (!sel.rangeCount) return; let x = sel.anchorNode; while (x && x !== ed) { if (x.nodeName === 'MARK') { unwrap(x); return; } x = x.parentNode; } if (sel.isCollapsed) return toast('Sélectionne d\'abord le texte à surligner'); document.execCommand('hiliteColor', false, getComputedStyle(document.documentElement).getPropertyValue('--mark').trim() || '#fff59d'); }
+    function normalize() { $$('[style]', ed).forEach(el => { const hl = /background/i.test(el.getAttribute('style') || ''); if (el.tagName === 'SPAN' || el.tagName === 'FONT') { if (hl) rename(el, 'mark'); else unwrap(el); } else { el.removeAttribute('style'); if (hl && el.tagName !== 'MARK') { const mk = document.createElement('mark'); while (el.firstChild) mk.appendChild(el.firstChild); el.appendChild(mk); } } }); $$('span,font', ed).forEach(unwrap); }
+    const BLOCKS = /^(DIV|P|UL|OL|H2|H3|BLOCKQUOTE|PRE|HR)$/;
+    function ensureBlock() { const sel = getSelection(); if (!sel.rangeCount) return; let x = sel.anchorNode; if (!x || x === ed || !ed.contains(x)) return; while (x.parentNode !== ed) x = x.parentNode; if (x.nodeType === 3 || !BLOCKS.test(x.nodeName)) { try { document.execCommand('formatBlock', false, 'div'); } catch (e) { } } }
+    // Cases à cocher cliquables
+    ed.addEventListener('click', e => { const t = e.target; if (t.tagName === 'INPUT' && t.type === 'checkbox') { e.preventDefault(); const on = !t.hasAttribute('checked'); setTimeout(() => { t.toggleAttribute('checked', on); t.checked = on; schedule(); }, 0); } });
+    // Raccourcis de frappe : "- " liste, "1. " numérotée, "[] " case à cocher
+    ed.addEventListener('keydown', e => {
+      if (e.key !== ' ') return; const sel = getSelection(); if (!sel.rangeCount || !sel.isCollapsed) return; const t = sel.anchorNode; if (t.nodeType !== 3) return;
+      const before = t.textContent.slice(0, sel.anchorOffset); if (!/^(-|\*|\[\]|1\.)$/.test(before)) return;
+      ensureBlock(); const blk = t.parentElement.closest('div,p,li,h2,h3,blockquote,#editor'); if (!blk || blk.tagName === 'LI' || !blk.textContent.startsWith(before)) return;
+      e.preventDefault(); for (let i = 0; i < before.length; i++) document.execCommand('delete');
+      if (before === '-' || before === '*') document.execCommand('insertUnorderedList'); else if (before === '1.') document.execCommand('insertOrderedList'); else insertCheckbox();
+      schedule();
+    });
+    ed.addEventListener('paste', e => { e.preventDefault(); const html = e.clipboardData.getData('text/html'), text = e.clipboardData.getData('text/plain'); if (html) document.execCommand('insertHTML', false, sanitize(html)); else document.execCommand('insertHTML', false, esc(text).replace(/\r?\n/g, '<br>')); normalize(); schedule(); });
+    ed.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') { e.preventDefault(); window._carnetFlush(); toast('Enregistré ✓'); } });
+    if (isNew && !n.leconId) title.focus(); else ed.focus();
+  };
+  window.addEventListener('hashchange', () => { if (window._carnetFlush) { const f = window._carnetFlush; window._carnetFlush = null; f(); } });
+  window.addEventListener('beforeunload', () => { if (window._carnetFlush) window._carnetFlush(); saveNow(); });
+
+  /* ---------------- Devoirs ---------------- */
+  let devFilter = 'open', devMod = '';
+  ROUTES.devoirs = function (sub, a, b) {
+    setNewNoteContext();
+    if (sub === 'nouveau') { devList(); devForm(null, { moduleId: a, leconId: b }); return; }
+    if (sub === 'semaine') return weekView(a ? parseInt(a, 10) || 0 : 0);
+    if (sub && sub !== 'liste') { devList(); devForm(sub); return; }
+    devList();
+  };
+  function devList() {
+    let ds = S.devoirs.slice(); if (devMod) ds = ds.filter(d => d.moduleId === devMod);
+    const byDue = (x, y) => (x.due || '9999').localeCompare(y.due || '9999') || (x.prio === 'haute' ? -1 : 1);
+    const open = ds.filter(devOpen).sort(byDue), done = ds.filter(d => !devOpen(d)).sort((x, y) => (y.doneAt || 0) - (x.doneAt || 0));
+    const groups = [['⏰ En retard', open.filter(d => d.due && daysDiff(d.due) < 0), 'badge-danger'], ["📍 Aujourd'hui", open.filter(d => d.due && daysDiff(d.due) === 0), 'badge-warn'], ['📅 Cette semaine', open.filter(d => d.due && daysDiff(d.due) > 0 && daysDiff(d.due) <= 7), 'badge-primary'], ['🗓 Plus tard', open.filter(d => d.due && daysDiff(d.due) > 7), ''], ['🕳 Sans date', open.filter(d => !d.due), '']];
+    const shown = devFilter === 'done' ? [] : devFilter === 'doing' ? groups.map(g => [g[0], g[1].filter(d => d.status === 'doing'), g[2]]) : groups;
+    content(`<div class="row between"><h1 class="page-title">📌 Devoirs</h1><div class="row"><a class="btn" href="#/devoirs/semaine">🗓 Vue semaine</a><button class="btn btn-primary" id="dev-add">＋ Nouveau devoir</button></div></div>
+      <p class="page-sub">${plural(open.length, 'devoir')} à faire · ${done.length} terminé${done.length > 1 ? 's' : ''}</p>
+      <div class="card"><div class="quick-add"><input class="input" id="qa-title" placeholder="Ajout rapide : ex. Rendre le dossier BC1…" autocomplete="off"><input class="input" type="date" id="qa-due" value=""><button class="btn btn-primary" id="qa-add">Ajouter</button></div></div>
+      <div class="row mt between"><div class="pill-tabs" id="dev-tabs"><button data-f="open" class="${devFilter === 'open' ? 'active' : ''}">À faire</button><button data-f="doing" class="${devFilter === 'doing' ? 'active' : ''}">En cours</button><button data-f="done" class="${devFilter === 'done' ? 'active' : ''}">Terminés</button></div><select class="select" id="dev-mod" style="width:auto"><option value="">Tous les blocs</option>${MODS.map(m => `<option value="${m.id}" ${devMod === m.id ? 'selected' : ''}>${esc(m.code)}</option>`).join('')}</select></div>
+      ${shown.filter(g => g[1].length).map(g => `<div class="dev-group"><h3>${g[0]} <span class="badge ${g[2]}">${g[1].length}</span></h3><div class="dev-list">${g[1].map(devRow).join('')}</div></div>`).join('')}
+      ${devFilter !== 'done' && !shown.some(g => g[1].length) ? `<div class="card mt"><p class="empty">${devFilter === 'doing' ? 'Aucun devoir « en cours ».' : 'Aucun devoir à faire. Ajoute-en un dès qu\'un formateur en donne un.'}</p></div>` : ''}
+      ${devFilter === 'done' ? (done.length ? `<div class="dev-group"><h3>✅ Terminés</h3><div class="dev-list">${done.slice(0, 50).map(devRow).join('')}</div></div>` : '<div class="card mt"><p class="empty">Rien de terminé pour l\'instant.</p></div>') : ''}`);
+    bindDevRows(main);
+    $('#dev-add').addEventListener('click', () => devForm(null, { moduleId: devMod || 'libre' }));
+    $$('#dev-tabs button').forEach(b => b.addEventListener('click', () => { devFilter = b.dataset.f; devList(); }));
+    $('#dev-mod').addEventListener('change', e => { devMod = e.target.value; devList(); });
+    const qa = () => { const t = $('#qa-title').value.trim(); if (!t) return $('#qa-title').focus(); S.devoirs.push({ id: uid(), titre: t, desc: '', moduleId: devMod || 'libre', leconId: null, due: $('#qa-due').value || null, prio: 'normale', status: 'todo', lien: '', createdAt: Date.now(), doneAt: null }); save(); toast('Devoir ajouté'); devList(); };
+    $('#qa-add').addEventListener('click', qa); $('#qa-title').addEventListener('keydown', e => { if (e.key === 'Enter') qa(); });
+  }
+  function devForm(id, pre) {
+    const d = id ? S.devoirs.find(x => x.id === id) : null; if (id && !d) return toast('Devoir introuvable');
+    const v = d || Object.assign({ titre: '', desc: '', moduleId: 'libre', leconId: null, due: null, prio: 'normale', status: 'todo', lien: '' }, pre || {});
+    if (!MOD[v.moduleId]) v.moduleId = 'libre';
+    const bg = modal(`<h2>${d ? 'Modifier le devoir' : 'Nouveau devoir'}</h2>
+      <label class="lbl">Intitulé</label><input class="input" id="df-title" value="${esc(v.titre)}" placeholder="ex. Rendre le dossier de diagnostic BC1" autocomplete="off">
+      <div class="grid grid-2"><div><label class="lbl">Bloc</label>${moduleSelect(v.moduleId, 'df-mod')}</div><div><label class="lbl">Cours (facultatif)</label><span id="df-les-wrap">${lessonSelect(v.moduleId, v.leconId, 'df-les')}</span></div></div>
+      <div class="grid grid-3"><div><label class="lbl">À rendre le</label><input class="input" type="date" id="df-due" value="${esc(v.due || '')}"></div><div><label class="lbl">Priorité</label><select class="select" id="df-prio"><option value="haute" ${v.prio === 'haute' ? 'selected' : ''}>Haute</option><option value="normale" ${v.prio === 'normale' ? 'selected' : ''}>Normale</option><option value="basse" ${v.prio === 'basse' ? 'selected' : ''}>Basse</option></select></div><div><label class="lbl">État</label><select class="select" id="df-status"><option value="todo" ${v.status === 'todo' ? 'selected' : ''}>À faire</option><option value="doing" ${v.status === 'doing' ? 'selected' : ''}>En cours</option><option value="done" ${v.status === 'done' ? 'selected' : ''}>Terminé / rendu</option></select></div></div>
+      <label class="lbl">Détails (consignes, format, où le rendre…)</label><textarea class="input" id="df-desc">${esc(v.desc)}</textarea>
+      <label class="lbl">Lien (facultatif : Drive, mail du formateur…)</label><input class="input" id="df-lien" value="${esc(v.lien || '')}" placeholder="https://">
+      <div class="row mt" style="justify-content:space-between">${d ? '<button class="btn btn-danger btn-sm" id="df-del">🗑 Supprimer</button>' : '<span></span>'}<div class="row"><button class="btn" data-close>Annuler</button><button class="btn btn-primary" id="df-save">Enregistrer</button></div></div>`);
+    $('#df-mod', bg).addEventListener('change', e => { $('#df-les-wrap', bg).innerHTML = lessonSelect(e.target.value, null, 'df-les'); });
+    $('#df-title', bg).focus();
+    const submit = () => {
+      const t = $('#df-title', bg).value.trim(); if (!t) return $('#df-title', bg).focus();
+      const o = { titre: t, desc: $('#df-desc', bg).value.trim(), moduleId: $('#df-mod', bg).value, leconId: $('#df-les', bg).value || null, due: $('#df-due', bg).value || null, prio: $('#df-prio', bg).value, status: $('#df-status', bg).value, lien: $('#df-lien', bg).value.trim() };
+      if (d) { const wasDone = d.status === 'done'; Object.assign(d, o); if (o.status === 'done' && !wasDone) d.doneAt = Date.now(); if (o.status !== 'done') d.doneAt = null; }
+      else S.devoirs.push(Object.assign({ id: uid(), createdAt: Date.now(), doneAt: o.status === 'done' ? Date.now() : null }, o));
+      save(); bg.remove(); toast(d ? 'Devoir modifié' : 'Devoir ajouté'); if (parseHash().name === 'devoirs' && parseHash().args[0] && parseHash().args[0] !== 'semaine') history.replaceState(null, '', '#/devoirs'); render();
+    };
+    $('#df-save', bg).addEventListener('click', submit); bg.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') submit(); });
+    if (d) $('#df-del', bg).addEventListener('click', () => confirmBox('Supprimer ce devoir ?', () => { S.devoirs = S.devoirs.filter(x => x.id !== d.id); save(); toast('Devoir supprimé'); if (parseHash().args[0] && parseHash().args[0] !== 'semaine') history.replaceState(null, '', '#/devoirs'); render(); }));
+  }
+  function weekView(off) {
+    const t = parse(today()); const mon = new Date(t); mon.setDate(t.getDate() - ((t.getDay() + 6) % 7) + off * 7);
+    const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(mon); d.setDate(mon.getDate() + i); return iso(d); });
+    const end = parse(days[6]);
+    content(`<div class="row between"><h1 class="page-title">🗓 Semaine du ${mon.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}</h1><div class="row"><a class="btn btn-sm" href="#/devoirs/semaine/${off - 1}">← Précédente</a><a class="btn btn-sm" href="#/devoirs/semaine">Aujourd'hui</a><a class="btn btn-sm" href="#/devoirs/semaine/${off + 1}">Suivante →</a><a class="btn btn-sm" href="#/devoirs">☰ Liste</a></div></div>
+      <p class="page-sub">Du ${fmtDate(days[0])} au ${fmtDate(days[6])} · clique sur un jour pour ajouter un devoir, sur un devoir pour le modifier.</p>
+      <div class="week">${days.map(day => { const ds = S.devoirs.filter(d => d.due === day).sort((a, b) => (a.status === 'done') - (b.status === 'done')); const dt = parse(day); return `<div class="day ${day === today() ? 'today' : ''}"><h4><span>${dt.toLocaleDateString('fr-FR', { weekday: 'short' })} <b>${dt.getDate()}</b></span><button class="btn btn-sm btn-ghost" data-add="${day}" title="Ajouter un devoir ce jour">＋</button></h4>${ds.map(d => { const m = modOf(d.moduleId); return `<span class="mini ${d.status === 'done' ? 'done' : ''}" style="--mc:${m.couleur}" data-edit="${d.id}"><span class="prio ${d.prio || 'normale'}"></span> ${esc(d.titre)}<br><span class="tiny muted">${esc(m.code)}</span></span>`; }).join('')}</div>`; }).join('')}</div>
+      ${(() => { const late = S.devoirs.filter(d => devOpen(d) && d.due && daysDiff(d.due) < 0 && parse(d.due) < mon); return late.length ? `<div class="card mt" style="border-color:var(--danger)"><h2>⏰ Toujours en retard</h2><div class="dev-list">${late.map(devRow).join('')}</div></div>` : ''; })()}`);
+    $$('[data-add]', main).forEach(b => b.addEventListener('click', () => devForm(null, { due: b.dataset.add, moduleId: 'libre' })));
+    $$('.mini[data-edit]', main).forEach(el => el.addEventListener('click', () => devForm(el.dataset.edit)));
+    bindDevRows(main);
+    void end;
+  }
+
+  /* ---------------- Réglages, export / import, synchro ---------------- */
+  ROUTES.reglages = function () {
+    setNewNoteContext();
+    const size = new Blob([JSON.stringify(S)]).size;
+    content(`<h1 class="page-title">⚙️ Réglages &amp; sauvegarde</h1><p class="page-sub">Tes notes sont stockées dans ce navigateur uniquement : exporte-les régulièrement, ou utilise le code de synchro pour les passer du PC au téléphone.</p>
+      <div class="card"><h2>🔗 Plateforme « Mon prof »</h2><p class="small muted">L'adresse de ta plateforme e-learning (GitHub Pages). Sert aux boutons « Ouvrir le cours sur la plateforme ».</p><div class="row"><input class="input" id="st-url" placeholder="https://ton-compte.github.io/bpjeps-mapst/" value="${esc(S.settings.platformUrl || '')}" style="flex:1;min-width:240px"><button class="btn btn-primary" id="st-url-save">Enregistrer</button>${platformUrl() ? `<a class="btn" href="${esc(platformUrl())}" target="_blank" rel="noopener">Tester ↗</a>` : ''}</div></div>
+      <div class="card"><h2>🎨 Affichage</h2><div class="grid grid-3"><div><label class="lbl">Prénom</label><input class="input" id="st-prenom" value="${esc(S.settings.prenom || '')}"></div><div><label class="lbl">Thème</label><select class="select" id="st-theme"><option value="auto" ${S.settings.theme === 'auto' ? 'selected' : ''}>Automatique</option><option value="light" ${S.settings.theme === 'light' ? 'selected' : ''}>Clair</option><option value="dark" ${S.settings.theme === 'dark' ? 'selected' : ''}>Sombre</option></select></div><div><label class="lbl">Taille du texte</label><select class="select" id="st-fs">${[14, 15, 16, 17, 18, 20].map(x => `<option value="${x}" ${(S.settings.fontSize || 16) === x ? 'selected' : ''}>${x} px</option>`).join('')}</select></div></div></div>
+      <div class="card"><h2>💾 Sauvegarde (fichier)</h2><p class="small muted">${S.lastExport ? `Dernier export : ${fmtTs(S.lastExport)}` : 'Jamais exporté'} · ${plural(S.notes.length, 'note')}, ${plural(S.devoirs.length, 'devoir')} · ${(size / 1024).toFixed(0)} Ko</p><div class="row"><button class="btn btn-primary" id="st-export">⬇ Exporter (fichier .json)</button><label class="btn">⬆ Importer un fichier <input type="file" id="st-import" accept="application/json,.json" hidden></label></div></div>
+      <div class="card"><h2>📱 Code de synchro PC ↔ téléphone</h2><p class="small muted">Génère un code ici, colle-le sur l'autre appareil (par mail, message, presse-papiers). Le code contient tout ton carnet.</p><div class="row"><button class="btn" id="st-gen">Générer mon code</button><button class="btn" id="st-copy" hidden>📋 Copier</button></div><textarea class="input sync-code mt" id="st-code" placeholder="Le code apparaît ici… ou colle ici un code venant d'un autre appareil"></textarea><div class="row mt"><button class="btn btn-primary" id="st-apply">Appliquer le code collé</button></div></div>
+      <div class="card"><h2>📲 Installer l'appli</h2><p class="small muted">Sur téléphone : menu du navigateur → « Ajouter à l'écran d'accueil ». Sur PC (Chrome/Edge) : icône d'installation dans la barre d'adresse.</p><button class="btn" id="install-btn" ${window._installPrompt ? '' : 'hidden'}>Installer maintenant</button></div>
+      <div class="card" style="border-color:var(--danger)"><h2>🧹 Tout effacer</h2><p class="small muted">Supprime toutes les notes et devoirs de ce navigateur (pense à exporter avant).</p><button class="btn btn-danger" id="st-wipe">Effacer toutes mes données</button></div>`);
+    $('#st-url-save').addEventListener('click', () => { S.settings.platformUrl = $('#st-url').value.trim(); save(); toast('Adresse enregistrée'); render(); });
+    $('#st-url').addEventListener('keydown', e => { if (e.key === 'Enter') $('#st-url-save').click(); });
+    $('#st-prenom').addEventListener('change', e => { S.settings.prenom = e.target.value.trim(); save(); });
+    $('#st-theme').addEventListener('change', e => { S.settings.theme = e.target.value; applyTheme(); save(); });
+    $('#st-fs').addEventListener('change', e => { S.settings.fontSize = parseInt(e.target.value, 10); applyTheme(); save(); });
+    $('#st-export').addEventListener('click', () => { S.lastExport = Date.now(); saveNow(); const blob = new Blob([JSON.stringify({ app: 'carnet-bpjeps', version: window.CARNET_VERSION, exportedAt: new Date().toISOString(), data: S }, null, 1)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `carnet-bpjeps-${today()}.json`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); toast('Fichier exporté'); render(); });
+    $('#st-import').addEventListener('change', e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { try { importData(JSON.parse(r.result)); } catch (err) { toast('Fichier illisible'); } }; r.readAsText(f); });
+    $('#st-gen').addEventListener('click', async () => { try { const code = await makeSyncCode(); $('#st-code').value = code; $('#st-copy').hidden = false; toast(`Code généré (${(code.length / 1024).toFixed(1)} Ko)`); } catch (err) { toast('Impossible de générer le code'); } });
+    $('#st-copy').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('#st-code').value); toast('Code copié'); } catch (err) { $('#st-code').select(); toast('Sélectionne et copie le code manuellement'); } });
+    $('#st-apply').addEventListener('click', async () => { const c = $('#st-code').value.trim(); if (!c) return toast('Colle d\'abord un code'); try { importData(await readSyncCode(c)); } catch (err) { toast(err.message === 'format' ? 'Code non reconnu' : err.message); } });
+    $('#st-wipe').addEventListener('click', () => confirmBox('Effacer toutes les notes et tous les devoirs de ce navigateur ?', () => { S = DEF(); S.onboarded = true; saveNow(); updateCounts(); applyTheme(); toast('Carnet vidé'); go('accueil'); }));
+    const ib = $('#install-btn'); if (ib) ib.addEventListener('click', async () => { const p = window._installPrompt; if (!p) return; p.prompt(); await p.userChoice; window._installPrompt = null; ib.hidden = true; });
+  };
+  function importData(raw) {
+    const o = raw && raw.app === 'carnet-bpjeps' ? raw.data : raw;
+    if (!o || !Array.isArray(o.notes) || !Array.isArray(o.devoirs)) return toast('Ce fichier n\'est pas une sauvegarde du carnet');
+    const bg = modal(`<h2>Importer ${plural(o.notes.length, 'note')} et ${plural(o.devoirs.length, 'devoir')}</h2><p class="small muted">« Fusionner » garde tout ce que tu as ici et ajoute ou met à jour ce qui vient de l'autre appareil (la version la plus récente gagne). « Remplacer » écrase ce navigateur avec la sauvegarde.</p><div class="row" style="justify-content:flex-end"><button class="btn" data-close>Annuler</button><button class="btn" id="im-replace">Remplacer</button><button class="btn btn-primary" id="im-merge">Fusionner</button></div>`);
+    const finish = msg => { bg.remove(); saveNow(); updateCounts(); applyTheme(); toast(msg); render(); };
+    $('#im-merge', bg).addEventListener('click', () => { let added = 0, upd = 0; ['notes', 'devoirs'].forEach(k => { o[k].forEach(x => { if (!x || !x.id) return; const i = S[k].findIndex(y => y.id === x.id); if (i < 0) { S[k].push(x); added++; } else if ((x.updatedAt || x.createdAt || 0) > (S[k][i].updatedAt || S[k][i].createdAt || 0)) { S[k][i] = x; upd++; } }); }); if (o.settings && o.settings.platformUrl && !S.settings.platformUrl) S.settings.platformUrl = o.settings.platformUrl; finish(`Fusion : ${added} ajouté${added > 1 ? 's' : ''}, ${upd} mis à jour`); });
+    $('#im-replace', bg).addEventListener('click', () => { const d = DEF(); S = Object.assign(d, o, { settings: Object.assign(d.settings, o.settings || {}) }); S.onboarded = true; finish('Sauvegarde restaurée'); });
+  }
+  const b64 = bytes => { let s = ''; for (let i = 0; i < bytes.length; i += 8192) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 8192)); return btoa(s); };
+  const unb64 = str => { const s = atob(str); const b = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) b[i] = s.charCodeAt(i); return b; };
+  async function makeSyncCode() { const json = JSON.stringify(S); if (typeof CompressionStream !== 'undefined') { const cs = new CompressionStream('deflate'); const w = cs.writable.getWriter(); w.write(new TextEncoder().encode(json)); w.close(); const buf = await new Response(cs.readable).arrayBuffer(); return 'CAR1:' + b64(new Uint8Array(buf)); } return 'CAR0:' + b64(new TextEncoder().encode(json)); }
+  async function readSyncCode(code) { const m = /^CAR([01]):([A-Za-z0-9+/=\s]+)$/.exec(code.trim()); if (!m) throw new Error('format'); const bytes = unb64(m[2].replace(/\s/g, '')); let json; if (m[1] === '1') { if (typeof DecompressionStream === 'undefined') throw new Error('Ce navigateur ne sait pas lire les codes compressés : utilise le fichier.'); const ds = new DecompressionStream('deflate'); const w = ds.writable.getWriter(); w.write(bytes); w.close(); json = await new Response(ds.readable).text(); } else json = new TextDecoder().decode(bytes); const o = JSON.parse(json); if (!o || !o.settings) throw new Error('format'); return o; }
+
+  /* ---------------- Premier lancement ---------------- */
+  function onboarding() {
+    const bg = modal(`<h2>Bienvenue dans ton carnet 📝</h2><p>Il complète la plateforme « Mon prof » : ici tu écris, là-bas tu révises.</p><ol style="padding-left:20px;line-height:1.7"><li><b>Pendant le cours</b> : ouvre le bloc, clique sur le cours, écris. Tout s'enregistre tout seul.</li><li><b>Un devoir tombe</b> : bouton « ＋ Devoir », mets la date : il remonte sur le tableau de bord quand ça approche.</li><li><b>Réglages</b> : colle l'adresse de ta plateforme pour ouvrir chaque cours en un clic, et exporte ton carnet de temps en temps.</li></ol><div class="row" style="justify-content:flex-end"><a class="btn" href="#/reglages" data-close>Réglages</a><button class="btn btn-primary" data-close>C'est parti</button></div>`);
+    S.onboarded = true; save(); void bg;
+  }
+
+  /* ---------------- PWA ---------------- */
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); window._installPrompt = e; const b = $('#install-btn'); if (b) b.hidden = false; });
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) { window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').then(reg => { reg.addEventListener('updatefound', () => { const nw = reg.installing; nw && nw.addEventListener('statechange', () => { if (nw.state === 'installed' && navigator.serviceWorker.controller) toast('Nouvelle version disponible : recharge la page'); }); }); }).catch(() => { }); }); }
+
+  /* ---------------- Démarrage ---------------- */
+  shell(); applyTheme(); S.visits = (S.visits || 0) + 1; save();
+  if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (S.settings.theme === 'auto') applyTheme(); });
+  window.addEventListener('hashchange', render); render();
+  if (!S.onboarded) setTimeout(onboarding, 500);
+  window.CARNET = { get state() { return S; }, sanitize };
+})();
+
+</script>
+</body>
+</html>
